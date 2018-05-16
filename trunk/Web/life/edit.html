@@ -1,0 +1,157 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta charset="utf-8">
+    <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no">
+    <meta name="format-detection" content="telephone=no">
+    <title>新增消费</title>
+    <link href="../frozenui/css/frozen.css" rel="stylesheet" />
+
+    <script src="../frozenui/js/lib/zeptojs/zepto.min.js"></script>
+    <script src="../frozenui/js/frozen.js"></script>
+    <script src="../script/template.js"></script>
+    <script src="../script/common.js"></script>
+    <script src="../script/Duanjt.js"></script>
+    <script src="../script/CusDate.js"></script>
+    <script src="../script/DictionComb.js"></script>
+    <script src="../script/contact.js"></script>
+    <script>
+        $(function () {
+            var html = template("detail", { Data: { } });
+            $(".ui-container").html(html);
+
+            var cus = $(".ui-select-group").CusDate();
+            
+            var type = $("#CostTypeId").DictionComb({
+                hiddenName: "CostTypeId",
+                data: JSON.parse(contact.diction_list(1000300000)).data
+            });
+
+            $("#btnSave").tap(function () {
+                //验证输入是否合法
+                if (!$("input[name=Reason]").val()) {
+                    alertMsg("请输入消费名称");
+                    return;
+                }
+                if (!$("input[name=Price]").val()) {
+                    alertMsg("请输入消费金额");
+                    return;
+                }
+
+                var val = {
+                    Id: $("input[name=Id]").val(),
+                    Time: cus.getTime(),
+                    Reason: $("input[name=Reason]").val(),
+                    Price: $("input[name=Price]").val(),
+                    CostTypeId: $("select[name=CostTypeId]").val(),
+                    Notes: $("textarea[name=Notes]").val(),
+                    IsMark: $("input[name=IsMark]").attr("checked")?"true":"false",
+                    FamilyPay: $("input[name=FamilyPay]").attr("checked") ? "true" : "false"
+                };
+                var result = JSON.parse(contact.lifing_save(JSON.stringify(val)));
+                if (result.success == true) {
+                    //清空数据
+                    $("input[name=Id]").val("");
+                    $("input[name=Reason]").val("");
+                    $("input[name=Price]").val("");
+
+                    alertMsg("保存成功");
+                } else {
+                    alertMsgCenter(result.msg);
+                }
+            });
+
+            //判断是新增还是修改
+            var id = sessionStorage.getItem("life_id");//Duanjt.Url.GetPara(location.href)["id"];
+            if (id) {
+                var result = JSON.parse(contact.lifing_getbyid(id));
+                if (result.success) {
+                    var index = result.data;
+                    cus.setTime(index.Time);
+                    $("input[name=Id]").val(index.Id);
+                    $("input[name=Reason]").val(index.Reason);
+                    $("input[name=Price]").val(index.Price);
+                    $("select[name=CostTypeId]").val(index.CostTypeId);
+                    $("textarea[name=Notes]").val(index.Notes);
+                    if (index.IsMark == "true") {
+                        $("input[name=IsMark]").prop("checked",true);
+                    }
+                    if (index.FamilyPay == "true") {
+                        $("input[name=FamilyPay]").prop("checked", true);
+                    }
+                } else {
+                    alertMsgCenter(result.msg);
+                }
+            } else {
+                cus.setTime(new Date());
+            }
+        });
+    </script>
+</head>
+<body>
+    <header class="ui-header ui-header-positive ui-border-b">
+        <ul class="ui-row-flex">
+            <li class="ui-col ui-flex ui-flex-pack-start">
+                <i class="ui-icon-return" onclick="history.back()"></i>
+            </li>
+            <li class="ui-col ui-flex ui-flex-pack-center">
+                <h1>新增消费</h1>
+            </li>
+            <li class="ui-col ui-flex ui-flex-pack-end">
+                <i class="" id="btnSave">保存</i>
+            </li>
+        </ul>
+    </header>
+
+    <section class="ui-container"></section>
+
+</body>
+</html>
+
+<script type="text/html" id="detail">
+    <div class="ui-form ui-border-t">
+        <form action="#">
+            <div class="ui-form-item ui-border-b">
+                <label>消费日期</label>
+                <div class="ui-select-group" data-value="">
+                </div>
+            </div>
+            <div class="ui-form-item ui-border-b">
+                <label>消费名称</label>
+                <input type="text" value="" name="Reason">
+            </div>
+            <div class="ui-form-item ui-border-b">
+                <label>消费金额</label>
+                <input type="number" value="{{Data.Money}}" name="Price">
+            </div>
+            <div class="ui-form-item ui-border-b">
+                <label>消费类型</label>
+                <div class="ui-select" id="CostTypeId" data-value="1">
+                    <select>
+                        <option>2014</option>
+                        <option selected>2015</option>
+                        <option>2016</option>
+                    </select>
+                </div>
+            </div>
+            <div class="ui-form-item ui-border-b" style="height:80px;">
+                <label>消费备注</label>
+                <textarea style="height:60px; margin-top:10px;" name="Notes"></textarea>
+            </div>
+            <div class="ui-form-item ui-border-b" style="display:-webkit-box; -webkit-box-orient:horizontal">
+                <div style="-webkit-box-flex:1">
+                    <label class="ui-checkbox">
+                        <input type="checkbox" name="IsMark" value="1">特殊标识
+                    </label>
+                </div>
+                <div style="-webkit-box-flex:1">
+                    <label class="ui-checkbox">
+                        <input type="checkbox" name="FamilyPay" value="1">家庭内支出
+                    </label>
+                </div>
+            </div>
+            <input type="hidden" name="Id" value="{{id}}" />
+        </form>
+    </div>
+</script>

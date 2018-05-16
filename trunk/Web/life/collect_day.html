@@ -1,0 +1,103 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta charset="utf-8">
+    <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no">
+    <meta name="format-detection" content="telephone=no">
+    <title>按日统计支出</title>
+    <link href="../frozenui/css/frozen.css" rel="stylesheet" />
+    <script src="../frozenui/js/lib/zeptojs/zepto.min.js"></script>
+    <script src="../frozenui/js/frozen.js"></script>
+    <script src="../script/template.js"></script>
+    <script src="../script/Duanjt.js"></script>
+    <script src="../script/common.js"></script>
+    <script src="../script/contact.js"></script>
+    <script src="../script/vue.min.js"></script><!--vue框架-->
+
+    <script>
+        $(function () {
+            //过滤器
+            Vue.filter('fromatMoney', function (value) {
+                return "￥" + Duanjt.Float.ToFloat(value, 2);
+            })
+
+            new Vue({
+                el: ".ui-container",
+                data: {
+                    day: JSON.parse(contact.lifing_GetCollectByDay()),
+                    month: JSON.parse(contact.lifing_GetCollectByMonth())
+                }
+            });
+
+
+            var tab = new fz.Scroll('.ui-tab', {
+                role: 'tab',
+                autoplay: false//禁止自动播放
+            });
+
+            
+        });
+    </script>
+    <style>
+    </style>
+</head>
+<body>
+    <header class="ui-header ui-header-positive ui-border-b">
+        <ul class="ui-row-flex">
+            <li class="ui-col ui-flex ui-flex-pack-start">
+                <i class="ui-icon-return" onclick="history.back()"></i>
+            </li>
+            <li class="ui-col ui-flex ui-flex-pack-center" style="-webkit-box-flex:inherit; width:140px;">
+                <h1>支出统计</h1>
+            </li>
+            <li class="ui-col ui-flex ui-flex-pack-end" id="btnAdd">
+
+            </li>
+        </ul>
+    </header>
+
+    <section class="ui-container">
+        <div class="ui-tab">
+            <ul class="ui-tab-nav ui-border-b">
+                <li class="current">按日统计</li>
+                <li>按月统计</li>
+            </ul>
+            <ul class="ui-tab-content" style="width:300%">
+                <li class="current">
+                    <table class="ui-table ui-border-tb">
+                        <thead>
+                            <tr><th>日期</th><th>支出金额</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="d in day.data">
+                                <td>{{d.Time}}</td>
+                                <td>{{d.Price | fromatMoney}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                </li>
+                <li>
+                    <table class="ui-table ui-border-tb">
+                        <thead>
+                            <tr><th>日期</th><th>支出金额</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="d in month.data">
+                                <td>{{d.Time}}</td>
+                                <td>{{d.Price|fromatMoney}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </li>
+            </ul>
+        </div>
+    </section>
+</body>
+</html>
+
+<!--列表模版-->
+<script type="text/html" id="list">
+    <tr><td>{{Time}}</td><td>{{fromatMoney Price}}</td></tr>
+</script>

@@ -1,0 +1,126 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta charset="utf-8">
+    <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no">
+    <meta name="format-detection" content="telephone=no">
+    <title>生活费列表</title>
+    <link href="../frozenui/css/frozen.css" rel="stylesheet" />
+    <script src="../frozenui/js/lib/zeptojs/zepto.min.js"></script>
+    <script src="../frozenui/js/frozen.js"></script>
+    <script src="../script/common.js"></script>
+    <script>
+        var loading;
+        $(function () {
+            var result = JSON.parse(contact.GetCurrUser());
+            if (result.success) {
+                var user = result.data;
+                $("input[name=loginId]").val(user.loginId);
+                $("input[name=name]").val(user.name);
+                $("input[name=mail]").val(user.mail);
+            }else {
+                alertMsgCenter(result.msg);
+            }
+
+            /*事件绑定*/
+            $("#btnUpload").tap(function () {
+                loading = $.loading({
+                    content: '上传中...',
+                });
+                setTimeout(GetUploadCount, 10);
+            });
+        });
+		
+		//验证是否有需要上传的数据
+		function GetUploadCount(){
+			var result = JSON.parse(contact.GetUploadCount());
+			if (result.success == false) {
+				//失败
+                loading.loading("hide");
+                alertMsgCenter(result.msg);
+            } else {
+				if(result.data>0){
+					UploadLifing();
+				} else {
+				    loading.loading("hide");
+					alertMsgCenter("没有需要上传的数据");
+				}
+            }
+		}
+
+        //上传生活费信息
+        function UploadLifing() {
+            var result = JSON.parse(contact.UploadLifing());
+            if (result.success == false) {
+                loading.loading("hide");
+                alertMsgCenter(result.msg);
+            } else {
+                UploadIncome();
+            }
+        }
+
+        //上传纯收入信息
+        function UploadIncome() {
+            var result = JSON.parse(contact.UploadIncome());
+            if (result.success == false) {
+                loading.loading("hide");
+                alertMsgCenter(result.msg);
+            } else {
+                UploadBankCard();
+            }
+        }
+
+        //上传银行卡信息
+        function UploadBankCard() {
+            var result = JSON.parse(contact.UploadBankCard());
+            if (result.success == false) {
+                loading.loading("hide");
+                alertMsgCenter(result.msg);
+            } else {
+                loading.loading("hide");
+                alertMsgCenter("数据上传成功");
+            }
+        }
+
+
+    </script>
+</head>
+<body>
+    <header class="ui-header ui-header-positive ui-border-b">
+        <ul class="ui-row-flex">
+            <li class="ui-col ui-flex ui-flex-pack-start">
+                <i class="ui-icon-return" onclick="history.back()"></i>
+            </li>
+            <li class="ui-col ui-flex ui-flex-pack-center" style="-webkit-box-flex:inherit; width:140px;">
+                <h1>个人信息</h1>
+            </li>
+            <li class="ui-col ui-flex ui-flex-pack-end" >
+                <i id="btnUpload">数据上传</i>
+            </li>
+        </ul>
+    </header>
+
+    <section class="ui-container">
+        <div style="text-align:center;padding:30px 0px 20px 0px">
+            <img src="../image/logo.jpg" width="80" />
+        </div>
+        <form action="#">            
+            <div class="ui-form-item ui-border-b">
+                <label>账号</label>
+                <input type="text" value="duanjt" readonly="readonly" name="loginId">
+            </div>
+            <div class="ui-form-item ui-border-b">
+                <label>姓名</label>
+                <input type="text" value="段江涛" readonly="readonly" name="name">
+            </div>
+            <div class="ui-form-item ui-border-b">
+                <label>邮箱</label>
+                <input type="text" value="2123211212132@qq.com" readonly="readonly" name="mail">
+            </div>
+        </form>
+        
+    </section>
+
+</body>
+</html>

@@ -1,0 +1,202 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta charset="utf-8">
+    <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no">
+    <meta name="format-detection" content="telephone=no">
+    <title>生活费列表</title>
+    <link href="../frozenui/css/frozen.css" rel="stylesheet" />
+    <script src="../frozenui/js/lib/zeptojs/zepto.min.js"></script>
+    <script src="../frozenui/js/frozen.js"></script>
+    <script src="../script/template.js"></script>
+    <script src="../script/Duanjt.js"></script>
+    <script src="../script/common.js"></script>
+    <script src="../script/contact.js"></script>
+    <script>
+        //全局变量
+        var $list = null;//即将操作的对象
+        var pageIndex = 1;
+        var pageSize = 20;
+
+        template.helper("fromatMoney", function (x) {
+            return "￥" + Duanjt.Float.ToFloat(x, 2);
+        });
+
+        $(function () {
+
+            initData();
+
+            $(".ui-list>li").live("tap", function () {
+                $('.ui-actionsheet').addClass('show');
+                $list = $(this);
+            });
+
+            $("#btnDelete").on("tap", function () {
+                $('.ui-actionsheet').removeClass('show');
+                var id = $list.data("id");
+                var result = JSON.parse(contact.lifing_delete(id));
+                if (result.success) {
+                    alertMsg("删除成功");
+                    $list.remove();
+                } else {
+                    alertMsgCenter("删除失败");
+                }
+            });
+            $("#btnCancle").on("tap", function () {
+                $('.ui-actionsheet').removeClass('show');
+            });
+            $("#btnUpdate").on("tap", function () {
+                var id = $list.data("id");
+                console.log("修改编码:" + id);
+                sessionStorage.setItem("life_id", id);
+                location.href = "edit.html";
+            });
+            $("#btnAdd").on("tap", function () {
+                sessionStorage.setItem("life_id", "");
+                location.href = "edit.html";
+            });
+            $("#dLoadMore").click(function () {
+                $("#dLoadMore").html("加载中...");
+                $("#dLoadMore").css("disabled", "true");
+                pageIndex += 1;//页数+1
+                initData();
+            });
+
+            //搜索框
+            $('.ui-searchbar').tap(function () {
+                $('.ui-searchbar-wrap').addClass('focus');
+                $('.ui-searchbar-input input').focus();
+            });
+            $('.ui-searchbar-cancel').tap(function () {
+                $('.ui-searchbar-wrap').removeClass('focus');
+            });
+            $("#btnSearchCancle").tap(function () {
+                $("#txtKeyword").val("");
+            });
+            $("#btnClear").tap(function () {
+                $("#txtKeyword").val("");
+            });
+            $("#txtKeyword").keydown(function (e) {
+                if (e.keyCode == 13) {
+                    pageIndex = 1;
+                    $(".ui-list").html("");
+                    initData();
+                }
+            });
+        });
+
+        //加载数据
+        function initData() {
+            var keyWord = $("#txtKeyword").val();
+            var result = JSON.parse(contact.lifing_getpage(pageIndex, pageSize, keyWord));
+            var html = "";
+
+            if (result.success) {
+                if (result.data.length == 0) {
+                    $("#dLoadMore").html("没有更多数据了");
+                    return;
+                }
+                for (var i = 0; i < result.data.length; i++) {
+                    html += template("list", result.data[i]);
+                }
+                $(".ui-list").append(html);
+
+                $("#dLoadMore").html("加载更多");
+                $("#dLoadMore").css("disabled", "false");
+            } else {
+                alertMsgCenter(result.msg);
+            }
+        }
+
+    </script>
+    <style>
+        .ui-container .ui-border-t:active {
+            background-color: #18B4ED;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <header class="ui-header ui-header-positive ui-border-b">
+        <ul class="ui-row-flex">
+            <li class="ui-col ui-flex ui-flex-pack-start">
+                <i class="ui-icon-return" onclick="history.back()"></i>
+            </li>
+            <li class="ui-col ui-flex ui-flex-pack-center" style="-webkit-box-flex:inherit; width:140px;">
+                <h1>生活费列表</h1>
+            </li>
+            <li class="ui-col ui-flex ui-flex-pack-end" id="btnAdd">
+                <i class="ui-icon-add"></i>
+            </li>
+        </ul>
+    </header>
+
+    <section class="ui-container">
+        <!--搜索框-->
+        <div class="ui-searchbar-wrap ui-border-b">
+            <div class="ui-searchbar ui-border-radius">
+                <i class="ui-icon-search"></i>
+                <div class="ui-searchbar-text">请输入关键字</div>
+                <div class="ui-searchbar-input">
+                    <input value="" type="text" placeholder="请输入关键字" autocapitalize="off" id="txtKeyword">
+                </div>
+                <i class="ui-icon-close" id="btnClear"></i>
+            </div>
+            <button class="ui-searchbar-cancel" id="btnSearchCancle">取消</button>
+        </div>
+
+        <ul class="ui-list ui-list-pure ui-border-tb"></ul>
+        <div id="dLoadMore" style="text-align:center; height:50px; line-height:50px;">加载更多...</div>
+    </section>
+
+    <div class="ui-actionsheet">
+        <div class="ui-actionsheet-cnt">
+            <h4>请选择要操作的方式</h4>
+            <button id="btnDelete">删除</button>
+            <button class="ui-actionsheet-del" id="btnUpdate">修改</button>
+            <button id="btnCancle">取消</button>
+        </div>
+    </div>
+</body>
+</html>
+
+<!--列表模版-->
+<script type="text/html" id="list">
+    <li class="ui-border-t" data-id="{{Id}}">
+        <div>
+            <p>
+                <span>{{Reason}}</span>
+                <span style="float:right">{{fromatMoney Price}}</span>
+            </p>
+            <p>
+                <span>{{Time}}</span>
+                <span style="float:right">{{CostTypeName}}</span>
+            </p>
+            <p>
+                <span>备注:{{Notes}}</span>
+                <span style="float:right">
+                    {{if FamilyPay=="true"}}
+                    <img src="../image/svg/family-red.svg" style="" width="22" />
+                    {{else}}
+                    <img src="../image/svg/family-white.svg" style="" width="22" />
+                    {{/if}}
+
+                    {{if IsMark=="true"}}
+                    <img src="../image/svg/mart-red.svg" style="" width="22" />
+                    {{else}}
+                    <img src="../image/svg/mart-white.svg" style="" width="22" />
+                    {{/if}}
+                </span>
+            </p>
+            <p style="text-align:right; clear:both;">
+                {{if IsUpload=="1"}}
+                <span>已上传</span>
+                {{/if}}
+                {{if IsUpload!="1"}}
+                <span style="color:red">未上传</span>
+                {{/if}}
+            </p>
+        </div>
+    </li>
+</script>

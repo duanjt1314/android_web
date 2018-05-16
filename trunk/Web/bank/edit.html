@@ -1,0 +1,128 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta charset="utf-8">
+    <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no">
+    <meta name="format-detection" content="telephone=no">
+    <title>银行卡</title>
+    <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no">
+    <meta name="format-detection" content="telephone=no">
+    <link href="../frozenui/css/frozen.css" rel="stylesheet" />
+    <script src="../frozenui/js/lib/zeptojs/zepto.min.js"></script>
+    <script src="../frozenui/js/frozen.js"></script>
+    <script src="../script/template.js"></script>
+    <script src="../script/Duanjt.js"></script>
+    <script src="../script/CusDate.js"></script>
+    <script src="../script/common.js"></script>
+    <script src="../script/contact.js?v=9"></script>
+    <script src="../script/DictionComb.js"></script>
+    <script src="../script/vue.min.js"></script><!--vue框架-->
+    <script>
+        var vue = null;
+
+        $(function () {
+            var cus = $(".ui-select-group").CusDate();//定义日期控件
+
+            var type = $("#BankType").DictionComb({
+                hiddenName: "BankType",
+                data: JSON.parse(contact.diction_list(1000100000)).data
+            });
+
+            $("#btnSave").tap(function () {
+                //验证输入是否合法
+                if (!$("input[name=Price]").val()) {
+                    alertMsg("请输入消费金额");
+                    return;
+                }
+
+                var val = {
+                    Id: $("input[name=Id]").val(),
+                    Time: cus.getTime(),
+                    Price: $("input[name=Price]").val(),
+                    BankType: $("select[name=BankType]").val(),
+                    Note: $("textarea[name=Note]").val()
+                };
+                var result = JSON.parse(contact.bank_save(JSON.stringify(val)));
+                if (result.success == true) {
+                    //清空数据
+                    $("input[name=Id]").val("");
+                    $("input[name=Price]").val("");
+                    $("textarea[name=Note]").val("");
+
+                    alertMsg("保存成功");
+                } else {
+                    alertMsgCenter(result.msg);
+                }
+            });
+
+            //判断是新增还是修改
+            var id = sessionStorage.getItem("bank_id");//Duanjt.Url.GetPara(location.href)["id"];
+            if (id) {
+                var result = JSON.parse(contact.bank_getbyid(id));
+                if (result.success) {
+                    var index = result.data;
+                    cus.setTime(index.Time);
+                    $("input[name=Id]").val(index.Id);
+                    $("select[name=BankType]").val(index.BankType);
+                    $("textarea[name=Note]").val(index.Note);
+                    if (index.SaveType == "1000200002") {
+                        index.Price = "-" + index.Price;
+                    }
+                    $("input[name=Price]").val(index.Price);
+                } else {
+                    alertMsgCenter(result.msg);
+                }
+            } else {
+                cus.setTime(new Date());
+            }
+
+        });
+    </script>
+</head>
+<body>
+    <header class="ui-header ui-header-positive ui-border-b">
+        <ul class="ui-row-flex">
+            <li class="ui-col ui-flex ui-flex-pack-start">
+                <i class="ui-icon-return" onclick="history.back()"></i>
+            </li>
+            <li class="ui-col ui-flex ui-flex-pack-center">
+                <h1>新增流水</h1>
+            </li>
+            <li class="ui-col ui-flex ui-flex-pack-end">
+                <i class="" id="btnSave">保存</i>
+            </li>
+        </ul>
+    </header>
+
+    <section class="ui-container">
+        <div class="ui-form ui-border-t">
+            <form action="#">
+                <div class="ui-form-item ui-border-b">
+                    <label>操作日期</label>
+                    <div class="ui-select-group" data-value="">
+                    </div>
+                </div>
+                <div class="ui-form-item ui-border-b">
+                    <label>银行卡</label>
+                    <div class="ui-select" id="BankType" data-value="1">
+                        <select name="BankType">
+                            <option></option>
+                        </select>
+                    </div>
+                </div>
+                <div class="ui-form-item ui-border-b">
+                    <label>操作金额</label>
+                    <input type="number" name="Price">
+                </div>
+                <div class="ui-form-item ui-border-b" style="height:80px;">
+                    <label>操作说明</label>
+                    <textarea style="height:60px; margin-top:10px;" name="Note"></textarea>
+                </div>
+
+                <input type="hidden" name="Id" />
+            </form>
+        </div>
+    </section>
+</body>
+</html>

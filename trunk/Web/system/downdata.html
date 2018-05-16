@@ -1,0 +1,88 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta charset="utf-8">
+    <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no">
+    <meta name="format-detection" content="telephone=no">
+    <title>生活费列表</title>
+    <link href="../frozenui/css/frozen.css" rel="stylesheet" />
+    <script src="../frozenui/js/lib/zeptojs/zepto.min.js"></script>
+    <script src="../frozenui/js/frozen.js"></script>
+    <script src="../script/common.js"></script>
+    <script>
+        $(function () {
+            $("#btnDown").tap(function () {
+                /*
+                * 通过定时器下载数据,可以达到动态提示的效果
+                */
+                $("#div_content").html("准备下载用户数据");
+                setTimeout(DownLoadUsers, 10);
+            });
+
+        });
+
+        //下载用户数据
+        function DownLoadUsers() {
+            var result = JSON.parse(contact.DownLoadUsers());
+            if (result.success == true) {
+                $("#div_content").html("准备下载字典数据");
+                setTimeout(DownLoadDiction, 10);
+            } else {
+                $("#div_content").html("下载用户数据失败,失败原因:" + result.msg);
+            }
+        }
+
+        //下载字典数据
+        function DownLoadDiction() {
+            var result = JSON.parse(contact.DownLoadDiction());
+            if (result.success == true) {
+                $("#div_content").html("数据下载成功");
+            } else {
+                $("#div_content").html("下载字典数据失败,失败原因:" + result.msg);
+            }
+        }
+
+        //网上查询的，测试未通过
+        function testFun() {
+            $("#div_content").html("准备1");
+            var json = {  
+                "service" : "contact",  
+                "action": "diction_list"
+            };      
+            AndroidHtml5.callNative(json, { "parentId": "0" }, function (data) {
+                //成功
+                $("#div_content").html("成功"+data);
+            }, function (data) {
+                //失败
+                $("#div_content").html("失败" + data);
+            });
+        }
+
+    </script>
+</head>
+<body>
+    <header class="ui-header ui-header-positive ui-border-b">
+        <ul class="ui-row-flex">
+            <li class="ui-col ui-flex ui-flex-pack-start">
+                <i class="ui-icon-return" onclick="history.back()"></i>
+            </li>
+            <li class="ui-col ui-flex ui-flex-pack-center" style="-webkit-box-flex:inherit; width:140px;">
+                <h1>数据下载</h1>
+            </li>
+            <li class="ui-col ui-flex ui-flex-pack-end">
+            </li>
+        </ul>
+    </header>
+
+    <section class="ui-container">
+        <div style="text-align:center" id="div_content">请单击按钮进行数据下载</div>
+        <div class="ui-btn-wrap">
+            <button class="ui-btn-lg ui-btn-danger" id="btnDown">
+                数据下载
+            </button>
+        </div>
+    </section>
+
+</body>
+</html>

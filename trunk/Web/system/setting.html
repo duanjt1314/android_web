@@ -1,0 +1,57 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta charset="utf-8">
+    <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no">
+    <meta name="format-detection" content="telephone=no">
+    <title>生活费列表</title>
+    <link href="../frozenui/css/frozen.css" rel="stylesheet" />
+    <script src="../frozenui/js/lib/zeptojs/zepto.min.js"></script>
+    <script src="../frozenui/js/frozen.js"></script>
+    <script src="../script/common.js"></script>
+    <script>
+        $(function () {
+            var sysUrl = contact.sysConfig_getByKey("ServerUrl");
+            $("input[name=sysUrl]").val(sysUrl);
+            $("#btnSave").tap(function () {
+                sysUrl = $("input[name=sysUrl]").val();
+                var result = contact.sysConfig_update("ServerUrl", sysUrl);
+                if (result == "true") {
+                    alertMsg("保存成功");
+                    history.back();
+                } else {
+                    alertMsgCenter("保存失败");
+                }
+            });
+        });
+
+    </script>
+</head>
+<body>
+    <header class="ui-header ui-header-positive ui-border-b">
+        <ul class="ui-row-flex">
+            <li class="ui-col ui-flex ui-flex-pack-start">
+                <i class="ui-icon-return" onclick="history.back()"></i>
+            </li>
+            <li class="ui-col ui-flex ui-flex-pack-center" style="-webkit-box-flex:inherit; width:140px;">
+                <h1>设置</h1>
+            </li>
+            <li class="ui-col ui-flex ui-flex-pack-end">
+                <i id="btnSave">保存</i>
+            </li>
+        </ul>
+    </header>
+
+    <section class="ui-container">
+        <form action="#">
+            <div class="ui-form-item ui-border-b">
+                <label>系统地址</label>
+                <input type="text" name="sysUrl" value="http://192.168.1.1:81">
+            </div>
+        </form>
+
+    </section>
+
+</body>
+</html>

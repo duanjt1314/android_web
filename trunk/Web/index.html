@@ -1,0 +1,102 @@
+﻿
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no">
+    <meta name="format-detection" content="telephone=no">
+    <title>index</title>
+    <link href="frozenui/css/frozen.css" rel="stylesheet" />
+    <script src="frozenui/js/lib/zeptojs/zepto.min.js"></script>
+    <script src="frozenui/js/frozen.js"></script>
+    <script src="script/common.js"></script>
+    <link href="style/common.css" rel="stylesheet" />
+    <script>
+        $(function () {
+            $(".ui-row>li").tap(function () {
+                var url = $(this).data("url");
+                if (url) {
+                    location.href = url;
+                }
+            });
+        });
+    </script>
+    <style>
+        .ui-container > ul > li:active {
+            background-color: #18B4ED;
+            color: white;
+        }
+
+        .ui-container > ul {
+            margin-left: 0;
+            padding-left: 0;
+        }
+
+            .ui-container > ul > li {
+                margin: 0px;
+                padding: 10px;
+                text-align: center;
+                font-size: 12px;
+            }
+			.ui-container > ul > li > p {
+				overflow:hidden;			
+				white-space:nowrap;
+				text-overflow:ellipsis;
+			}
+    </style>
+</head>
+
+<body>
+    <header class="ui-header ui-header-positive ui-border-b">
+        <ul class="ui-row-flex">
+            <li class="ui-col ui-flex ui-flex-pack-start">
+                <i class="ui-icon-return" onclick="history.back()"></i>
+            </li>
+            <li class="ui-col ui-flex ui-flex-pack-center" style="-webkit-box-flex:inherit; width:140px;">
+                <h1>收支管理系统</h1>
+            </li>
+            <li class="ui-col ui-flex ui-flex-pack-end">
+                <i class="ui-icon-personal" onclick="location.href='system/person.html'"></i>
+            </li>
+        </ul>
+    </header>
+
+    <section class="ui-container">
+        <!-- 占位图片 http://placeholder.qiniudn.com/100x100-->
+        <ul class="ui-row">
+            <li class="ui-col ui-col-25" data-url="life/list.html">
+                <div>
+                    <img src="image/menu/lifing.png" width="90%" />
+                </div>
+                <p>生活费管理</p>
+            </li>
+            <li class="ui-col ui-col-25" data-url="bank/list.html">
+                <div>
+                    <img src="image/menu/bank.png" width="90%" />
+                </div>
+                <p>银行卡管理</p>
+            </li>
+            <li class="ui-col ui-col-25" data-url="income/list.html">
+                <div>
+                    <img src="image/menu/income.png" width="90%" />
+                </div>
+                <p>收入管理</p>
+            </li>
+            <li class="ui-col ui-col-25" data-url="life/collect_day.html">
+                <div>
+                    <img src="image/menu/coll.png" width="90%" />
+                </div>
+                <p>支出统计</p>
+            </li>
+            <li class="ui-col ui-col-25" data-url="system/datasync.html">
+                <div>
+                    <img src="image/menu/refresh.png" width="90%" />
+                </div>
+                <p>数据同步</p>
+            </li>
+        </ul>
+
+    </section>
+
+</body>
+</html>

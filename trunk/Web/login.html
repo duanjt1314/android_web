@@ -1,0 +1,107 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no">
+    <meta name="format-detection" content="telephone=no">
+    <title>用户登录</title>
+    <link href="frozenui/css/frozen.css" rel="stylesheet" />
+    <link href="Tiny-Alert/css/zepto.alert.css" rel="stylesheet" />
+    <script src="frozenui/js/lib/zeptojs/zepto.min.js"></script>
+    <script src="frozenui/js/frozen.js"></script>
+    <script src="Tiny-Alert/js/zepto.alert.js"></script>
+    <script src="script/common.js"></script>
+    <script src="script/contact.js"></script>
+    <script type="text/javascript">
+
+        $(function () {
+            var height = $(document).height();
+            $("#div_foot").css("margin-top", height - 380);
+
+            $("#btnLogin").tap(login);
+
+            $("#txtLoginId").val(localStorage.getItem("loginId"));
+            $("#txtLoginPwd").val(localStorage.getItem("loginPwd"));
+
+        });
+
+        function login() {
+            var loginId = $("#txtLoginId").val();
+            var loginPwd = $("#txtLoginPwd").val();
+
+            if (loginId.trim() == "") {
+                alertMsg("请输入用户名");
+                return;
+            }
+            if (loginPwd.trim() == "") {
+                alertMsg("请输入密码");
+                return;
+            }
+
+            var obj = request("login", { loginId: loginId, loginPwd: loginPwd });
+            if (obj.success == true) {
+                localStorage.setItem("loginId", loginId);
+                localStorage.setItem("loginPwd", loginPwd);
+                location.href = "index.html";
+            } else {
+                alertMsg(obj.msg);
+            }
+        }
+
+        function close() {
+            contact.confirm("确认退出系统?", "提示", "Quit_OK", "Quit_Cancle");
+            //$.dialog({
+            //    content: '确认退出系统?',
+            //    title: 'alert',
+            //    ok: function () {
+            //        contact.exit();
+            //    },
+            //    cancel: function () {
+
+            //    },
+            //    lock: true
+            //});
+        }
+
+        function Quit_OK() {
+            contact.exit();
+        }
+        function Quit_Cancle() {
+
+        }
+    </script>
+</head>
+
+<body>
+    <section id="ui-container">
+        <div style="text-align:center;padding:50px 0px 0px 0px">
+            <img src="image/logo.jpg" width="80" />
+        </div>
+        <div style="text-align:center; padding-bottom:20px;">生活费管理系统</div>
+        <div class="ui-form ui-border-t">
+            <form action="#">
+                <div class="ui-form-item ui-form-item-pure ui-border-b">
+                    <input type="text" placeholder="账号" id="txtLoginId" value="123">
+                </div>
+                <div class="ui-form-item ui-form-item-pure ui-border-b">
+                    <input type="password" placeholder="密码" id="txtLoginPwd" value="123">
+                </div>
+
+            </form>
+            <div class="demo-block">
+                <div class="ui-btn-wrap">
+                    <button class="ui-btn-lg ui-btn-primary" id="btnLogin">
+                        登 录
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+    <div id="div_foot" style="height:30px; margin-top:30px;">
+        <i id="btnSetting" onclick="location.href='system/setting.html'">设置</i>
+        <i id="btnDownData" onclick="location.href='system/downdata.html'" style="float:right">数据下载</i>
+    </div>
+</body>
+
+</html>

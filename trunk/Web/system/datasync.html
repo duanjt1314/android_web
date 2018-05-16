@@ -1,0 +1,249 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta charset="utf-8">
+    <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no">
+    <meta name="format-detection" content="telephone=no">
+    <title>数据同步</title>
+    <link href="../frozenui/css/frozen.css" rel="stylesheet" />
+    <script src="../frozenui/js/lib/zeptojs/zepto.min.js"></script>
+    <script src="../frozenui/js/frozen.js"></script>
+    <script src="../script/common.js"></script>
+    <style>
+        section>ul>li {
+            padding-left: 5px;
+            padding-right: 5px;
+            padding-top: 5px;
+        }
+
+        #div_content {
+            text-align: center;
+            line-height: 50px;
+        }
+    </style>
+    <script>
+        var pageSize = 200;
+        var start = 0;
+        var total = 0;
+        $(function () {
+            $("#btnLifingSync").tap(function () {
+                /*
+                * 通过定时器下载数据,可以达到动态提示的效果
+                */
+                start = 0;
+                total = 0;
+                $("#div_content").html("准备同步数据");
+                setTimeout(DownLifing, 10);
+            });
+
+            $("#btnIncomeSync").tap(function () {
+                start = 0;
+                total = 0;
+                $("#div_content").html("准备同步数据");
+                setTimeout(DownIncome, 10);
+            });
+
+
+            $("#btnBankSync").tap(function () {
+                start = 0;
+                total = 0;
+                $("#div_content").html("准备同步数据");
+                setTimeout(DownBankCard, 10);
+            });
+        });
+
+        //下载生活费信息
+        function DownLifing() {
+            var result = request("DownLifing", { pageSize: pageSize, start: start });
+            if (result.success == true) {
+                start += pageSize;
+                $("#div_content").html("数据下载成功:" + start);
+                total = result.data;
+                if (start >= total) {
+                    $("#div_content").html("生活费同步成功");
+                } else {
+                    setTimeout(DownLifing, 10);
+                }
+            } else {
+                $("#div_content").html("同步数据失败,失败原因:" + result.msg);
+            }
+        }
+
+        //下载纯收入信息
+        function DownIncome() {
+            var result = JSON.parse(contact.DownIncome(pageSize, start));
+            if (result.success == true) {
+                start += pageSize;
+                $("#div_content").html("数据下载成功:" + start);
+                total = result.data;
+                if (start >= total) {
+                    $("#div_content").html("纯收入同步成功");
+                } else {
+                    setTimeout(DownIncome, 10);
+                }
+            } else {
+                $("#div_content").html("同步数据失败,失败原因:" + result.msg);
+            }
+        }
+
+        //下载银行卡信息
+        function DownBankCard() {
+            var result = JSON.parse(contact.DownBankCard(pageSize, start));
+            if (result.success == true) {
+                start += pageSize;
+                $("#div_content").html("数据下载成功:" + start);
+                total = result.data;
+                if (start >= total) {
+                    $("#div_content").html("银行卡同步成功");
+                } else {
+                    setTimeout(DownBankCard, 10);
+                }
+            } else {
+                $("#div_content").html("同步数据失败,失败原因:" + result.msg);
+            }
+        }
+
+        //计算余额
+        function CalcBankBal() {
+
+        }
+
+        function ClearBank() {
+            var dia = $.dialog({
+                title: '温馨提示',
+                content: '清除后将不能恢复,确认清除银行卡信息吗',
+                button: ["确认", "取消"]
+            });
+
+            dia.on("dialog:action", function (e) {
+                console.log(e);
+                if (e.index == 0) {
+                    //清除
+                    var result = JSON.parse(contact.bank_clear());
+                    if (result.success == true) {
+                        $("#div_content").html("银行卡信息清除成功");
+                    } else {
+                        $("#div_content").html(result.msg);
+                    }
+                }
+            });
+            dia.on("dialog:hide", function (e) {
+                //窗体关闭事件
+            });
+
+        }
+
+        function ClearLifing() {
+            var dia = $.dialog({
+                title: '温馨提示',
+                content: '清除后将不能恢复,确认清除生活费信息吗',
+                button: ["确认", "取消"]
+            });
+
+            dia.on("dialog:action", function (e) {
+                console.log(e);
+                if (e.index == 0) {
+                    //清除
+                    var result = JSON.parse(contact.lifing_clear());
+                    if (result.success == true) {
+                        $("#div_content").html("生活费信息清除成功");
+                    } else {
+                        $("#div_content").html(result.msg);
+                    }
+                }
+            });
+            dia.on("dialog:hide", function (e) {
+                //窗体关闭事件
+            });
+
+        }
+
+        function ClearIncome() {
+            var dia = $.dialog({
+                title: '温馨提示',
+                content: '清除后将不能恢复,确认清除收入信息吗',
+                button: ["确认", "取消"]
+            });
+
+            dia.on("dialog:action", function (e) {
+                console.log(e);
+                if (e.index == 0) {
+                    //清除
+                    var result = JSON.parse(contact.income_clear());
+                    if (result.success == true) {
+                        $("#div_content").html("收入信息清除成功");
+                    } else {
+                        $("#div_content").html(result.msg);
+                    }
+                }
+            });
+            dia.on("dialog:hide", function (e) {
+                //窗体关闭事件
+            });
+
+        }
+    </script>
+</head>
+
+<body>
+    <header class="ui-header ui-header-positive ui-border-b">
+        <ul class="ui-row-flex">
+            <li class="ui-col ui-flex ui-flex-pack-start">
+                <i class="ui-icon-return" onclick="history.back()"></i>
+            </li>
+            <li class="ui-col ui-flex ui-flex-pack-center" style="-webkit-box-flex:inherit; width:140px;">
+                <h1>数据同步</h1>
+            </li>
+            <li class="ui-col ui-flex ui-flex-pack-end">
+            </li>
+        </ul>
+    </header>
+
+    <section class="ui-container">
+        <div id="div_content">请单击按钮进行数据同步</div>
+        <ul class="ui-row">
+            <li class="ui-col ui-col-50">
+                <button class="ui-btn-lg ui-btn-primary" id="btnLifingSync">
+                    生活费同步
+                </button>
+            </li>
+            <li class="ui-col ui-col-50">
+                <button class="ui-btn-lg ui-btn-primary" id="btnIncomeSync">
+                    收入同步
+                </button>
+            </li>
+            <li class="ui-col ui-col-50">
+                <button class="ui-btn-lg ui-btn-primary" id="btnBankSync">
+                    银行卡同步
+                </button>
+            </li>
+            <li class="ui-col ui-col-50">
+                <button class="ui-btn-lg ui-btn-primary" id="btnCalcBankBal" onclick="CalcBankBal()">
+                    计算余额
+                </button>
+            </li>
+        </ul>
+        <ul class="ui-row">
+            <li class="ui-col ui-col-50">
+                <button class="ui-btn-lg ui-btn-danger" id="btnClearBank" onclick="ClearBank()">
+                    清除银行卡
+                </button>
+            </li>
+            <li class="ui-col ui-col-50">
+                <button class="ui-btn-lg ui-btn-danger" id="btnClearLife" onclick="ClearLifing()">
+                    清除生活费
+                </button>
+            </li>
+            <li class="ui-col ui-col-50">
+                <button class="ui-btn-lg ui-btn-danger" id="btnClearIncome" onclick="ClearIncome()">
+                    清除纯收入
+                </button>
+            </li>
+        </ul>
+    </section>
+
+</body>
+
+</html>

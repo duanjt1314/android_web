@@ -1,0 +1,130 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta charset="utf-8">
+    <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no">
+    <meta name="format-detection" content="telephone=no">
+    <title>新增收入</title>
+    <link href="../frozenui/css/frozen.css" rel="stylesheet" />
+
+    <script src="../frozenui/js/lib/zeptojs/zepto.min.js"></script>
+    <script src="../frozenui/js/frozen.js"></script>
+    <script src="../script/template.js"></script>
+    <script src="../script/common.js"></script>
+    <script src="../script/Duanjt.js"></script>
+    <script src="../script/CusDate.js"></script>
+    <script src="../script/DictionComb.js"></script>
+    <script src="../script/contact.js"></script>
+    <script>
+        $(function () {
+            var html = template("detail", { Data: { } });
+            $(".ui-container").html(html);
+
+            var cus = $(".ui-select-group").CusDate();
+            
+            $("#btnSave").tap(function () {
+                //验证输入是否合法
+                if (!$("input[name=Price]").val()) {
+                    alertMsg("请输入消费金额");
+                    return;
+                }
+
+                var val = {
+                    Id: $("input[name=Id]").val(),
+                    Time: cus.getTime(),
+                    Price: $("input[name=Price]").val(),
+                    Note: $("textarea[name=Notes]").val(),
+                    IsMark: $("input[name=IsMark]").attr("checked")?"true":"false",
+                    FamilyIncome: $("input[name=FamilyIncome]").attr("checked") ? "true" : "false"
+                };
+                var result = JSON.parse(contact.income_save(JSON.stringify(val)));
+                if (result.success == true) {
+                    //清空数据
+                    $("input[name=Id]").val("");
+                    $("input[name=Notes]").val("");
+                    $("input[name=Price]").val("");
+
+                    alertMsg("保存成功");
+                } else {
+                    alertMsgCenter(result.msg);
+                }
+            });
+
+            //判断是新增还是修改
+            var id = sessionStorage.getItem("income_id");//Duanjt.Url.GetPara(location.href)["id"];
+            if (id) {
+                var result = JSON.parse(contact.income_getbyid(id));
+                if (result.success) {
+                    var index = result.data;
+                    cus.setTime(index.Time);
+                    $("input[name=Id]").val(index.Id);
+                    $("input[name=Price]").val(index.Price);
+                    $("textarea[name=Notes]").val(index.Note);
+                    if (index.IsMark == "true") {
+                        $("input[name=IsMark]").prop("checked",true);
+                    }
+                    if (index.FamilyIncome == "true") {
+                        $("input[name=FamilyIncome]").prop("checked", true);
+                    }
+                } else {
+                    alertMsgCenter(result.msg);
+                }
+            } else {
+                cus.setTime(new Date());
+            }
+        });
+    </script>
+</head>
+<body>
+    <header class="ui-header ui-header-positive ui-border-b">
+        <ul class="ui-row-flex">
+            <li class="ui-col ui-flex ui-flex-pack-start">
+                <i class="ui-icon-return" onclick="history.back()"></i>
+            </li>
+            <li class="ui-col ui-flex ui-flex-pack-center">
+                <h1>新增收入</h1>
+            </li>
+            <li class="ui-col ui-flex ui-flex-pack-end">
+                <i class="" id="btnSave">保存</i>
+            </li>
+        </ul>
+    </header>
+
+    <section class="ui-container"></section>
+
+</body>
+</html>
+
+<script type="text/html" id="detail">
+    <div class="ui-form ui-border-t">
+        <form action="#">
+            <div class="ui-form-item ui-border-b">
+                <label>收入日期</label>
+                <div class="ui-select-group" data-value="">
+                </div>
+            </div>
+            <div class="ui-form-item ui-border-b">
+                <label>收入金额</label>
+                <input type="number" value="{{Data.Money}}" name="Price">
+            </div>            
+            <div class="ui-form-item ui-border-b" style="height:80px;">
+                <label>收入备注</label>
+                <textarea style="height:60px; margin-top:10px;" name="Notes"></textarea>
+            </div>
+            <div class="ui-form-item ui-border-b" style="display:-webkit-box; -webkit-box-orient:horizontal">
+                <div style="-webkit-box-flex:1">
+                    <label class="ui-checkbox">
+                        <input type="checkbox" name="IsMark" value="1">特殊标识
+                    </label>
+                </div>
+                <div style="-webkit-box-flex:1">
+                    <label class="ui-checkbox">
+                        <input type="checkbox" name="FamilyIncome" value="1">家庭内收入
+                    </label>
+                </div>
+            </div>
+            <input type="hidden" name="Id" value="{{Id}}" />
+        </form>
+    </div>
+</script>
