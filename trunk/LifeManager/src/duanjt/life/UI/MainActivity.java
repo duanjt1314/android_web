@@ -757,10 +757,11 @@ public class MainActivity extends Activity {
 		// region 银行卡信息
 
 		// 分页查询银行卡信息
-		@android.webkit.JavascriptInterface
-		public String bank_getpage(int pageIndex, int pageSize, String bankType) {
+		public Response bank_getpage(HashMap map) {
 			try {
-				Log.i("接受到数据", "pageIndex=" + pageIndex + " pageSize=" + pageSize);
+				int pageIndex = Integer.parseInt(map.get("pageIndex").toString());
+				int pageSize = Integer.parseInt(map.get("pageSize").toString());
+				String bankType = map.get("bankType").toString();
 				String sqlWhere = "";
 				if (!Values.isNull(bankType)) {
 					sqlWhere += " and bank_type='" + bankType + "'";
@@ -770,20 +771,17 @@ public class MainActivity extends Activity {
 					String bankName = new DictionDao(getApplicationContext()).GetNameById(list.get(i).getBankType());
 					list.get(i).setBankTypeName(bankName);
 				}
-				String result = Common.ToJson(new Response(true, "请求成功", list));
-				Log.i("银行卡列表返回", result);
-				return result;
+				return new Response(true, "请求成功", list);
 			} catch (Exception e) {
-				String result = Common.ToJson(new Response(false, "失败," + e.getMessage(), null));
-				return result;
+				return new Response(false, "失败," + e.getMessage(), null);
 			}
 		}
 
 		// 根据编号查询银行卡信息
-		@android.webkit.JavascriptInterface
-		public String bank_getbyid(String id) {
+		public Response bank_getbyid(HashMap map) {
+			String id = map.get("id").toString();
 			BankCard bank = new BankCardDao(getApplicationContext()).getById(id);
-			return Common.ToJson(new Response(true, "成功", bank));
+			return new Response(true, "成功", bank);
 		}
 
 		// 获取所有银行卡信息
@@ -800,9 +798,9 @@ public class MainActivity extends Activity {
 		}
 
 		// 保存银行卡信息
-		@android.webkit.JavascriptInterface
-		public String bank_save(String objString) {
+		public Response bank_save(HashMap map) {
 			try {
+				String objString = map.get("objString").toString();
 				Boolean con = false;
 				BankCard index = (BankCard) Common.ToObject(objString, BankCard.class);
 				index.setIsUpload("0");
@@ -828,23 +826,22 @@ public class MainActivity extends Activity {
 					con = bankCardDao.Modify(index);
 				}
 				if (con) {
-					return Common.ToJson(new Response(true, "保存成功", null));
+					return new Response(true, "保存成功", null);
 				} else {
-					return Common.ToJson(new Response(false, "保存失败", null));
+					return new Response(false, "保存失败", null);
 				}
 			} catch (Exception ex) {
-				return Common.ToJson(new Response(false, ex.getMessage(), null));
+				return new Response(false, ex.getMessage(), null);
 			}
 		}
 
-		@android.webkit.JavascriptInterface
-		public String bank_delete(String id) {
+		public Response bank_delete(HashMap map) {
 			try {
+				String id = map.get("id").toString();
 				bankCardDao.Delete(id);
-				String result = Common.ToJson(new Response(true, "删除成功", null));
-				return result;
+				return new Response(true, "删除成功", null);
 			} catch (Exception ex) {
-				return Common.ToJson(new Response(false, ex.getMessage(), null));
+				return new Response(false, ex.getMessage(), null);
 			}
 		}
 
@@ -865,28 +862,26 @@ public class MainActivity extends Activity {
 		// endregion
 
 		// region 纯收入信息
-		@android.webkit.JavascriptInterface
-		public String income_getpage(int pageIndex, int pageSize) {
+		public Response income_getpage(HashMap map) {
 			try {
-				Log.i("准备查询纯收入", pageIndex + "|" + pageSize);
+				int pageIndex = Integer.parseInt(map.get("pageIndex").toString());
+				int pageSize = Integer.parseInt(map.get("pageSize").toString());
+
 				String sqlWhere = " and create_by='" + Common.currUsers.getId() + "'";
 				List<Income> list = incomeDao.GetByPage(pageIndex, pageSize, sqlWhere);
-				String result = Common.ToJson(new Response(true, "请求成功", list));
-				Log.i("纯收入列表返回", result);
-				return result;
+				return new Response(true, "请求成功", list);
 			} catch (Exception ex) {
-				return Common.ToJson(new Response(false, ex.getMessage(), null));
+				return new Response(false, ex.getMessage(), null);
 			}
 		}
 
-		@android.webkit.JavascriptInterface
-		public String income_delete(String id) {
+		public Response income_delete(HashMap map) {
 			try {
+				String id = map.get("id").toString();
 				incomeDao.Delete(id);
-				String result = Common.ToJson(new Response(true, "删除成功", null));
-				return result;
+				return new Response(true, "删除成功", null);
 			} catch (Exception ex) {
-				return Common.ToJson(new Response(false, ex.getMessage(), null));
+				return new Response(false, ex.getMessage(), null);
 			}
 		}
 
@@ -899,21 +894,19 @@ public class MainActivity extends Activity {
 			}
 		}
 
-		@android.webkit.JavascriptInterface
-		public String income_getbyid(String id) {
+		public Response income_getbyid(HashMap map) {
 			try {
+				String id = map.get("id").toString();
 				Income index = incomeDao.getById(id);
-				String result = Common.ToJson(new Response(true, "请求成功", index));
-				return result;
+				return new Response(true, "请求成功", index);
 			} catch (Exception ex) {
-				return Common.ToJson(new Response(false, ex.getMessage(), null));
+				return new Response(false, ex.getMessage(), null);
 			}
 		}
 
-		@android.webkit.JavascriptInterface
-		public String income_save(String objString) {
+		public Response income_save(HashMap map) {
 			try {
-				Log.i("纯收入保存", objString);
+				String objString = map.get("objString").toString();
 				Boolean con = false;
 				Income index = (Income) Common.ToObject(objString, Income.class);
 				index.setIsUpload("0");
@@ -933,12 +926,12 @@ public class MainActivity extends Activity {
 					con = incomeDao.Modify(index);
 				}
 				if (con) {
-					return Common.ToJson(new Response(true, "保存成功", null));
+					return new Response(true, "保存成功", null);
 				} else {
-					return Common.ToJson(new Response(false, "保存失败", null));
+					return new Response(false, "保存失败", null);
 				}
 			} catch (Exception ex) {
-				return Common.ToJson(new Response(false, ex.getMessage(), null));
+				return new Response(false, ex.getMessage(), null);
 			}
 		}
 

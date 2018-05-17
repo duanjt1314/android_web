@@ -1,5 +1,6 @@
 ﻿<!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml">
+
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <title>银行卡信息</title>
@@ -11,8 +12,8 @@
     <script src="../script/template.js"></script>
     <script src="../script/Duanjt.js"></script>
     <script src="../script/common.js"></script>
-    <script src="../script/contact.js?v=6"></script>
-    <script src="../script/vue.min.js"></script><!--vue框架-->
+    <script src="../script/vue.min.js"></script>
+    <!--vue框架-->
     <script>
         //全局变量
         var $list = null;//即将操作的对象
@@ -31,8 +32,8 @@
                 data: {
                     list: [],//获取数据
                     banks: request("diction_list", { parentId: 1000100000 }).data,//所有银行卡信息
-                    bankType:"",
-					bankId:"",
+                    bankType: "",
+                    bankId: "",
                     msg: "加载更多...",
                     menuClass: {
                         "ui-actionsheet": true,
@@ -42,7 +43,11 @@
                 methods: {
                     loadMore: function () {
                         pageIndex += 1;
-                        var result = JSON.parse(contact.bank_getpage(pageIndex, pageSize, vue.bankType));
+                        var result = request("bank_getpage", {
+                            pageIndex: pageIndex,
+                            pageSize: pageSize,
+                            bankType: vue.bankType
+                        });
                         if (result.success) {
                             if (result.data.length == 0) {
                                 vue.msg = "没有更多数据了";
@@ -57,10 +62,10 @@
                         }
                     },
                     itemClick: function (id) {
-						vue.bankId=id;//需要修改的编码
+                        vue.bankId = id;//需要修改的编码
                         vue.showHideMenu(true);//显示菜单
                     },
-                    bankChange:function(){
+                    bankChange: function () {
                         vue.list.splice(0, vue.list.length);//清空数组
                         pageIndex = 0;
                         vue.loadMore();
@@ -68,28 +73,28 @@
                     showHideMenu: function (show) {
                         vue.menuClass.show = show;
                     },
-					itemUpdate:function(){
-						sessionStorage.setItem("bank_id", vue.bankId);
-						location.href = "edit.html";
-					},
-					itemDelete:function(){
-						var result = JSON.parse(contact.bank_delete(vue.bankId));
-						if (result.success) {
-						    for (var i = vue.list.length-1; i >=0; i--) {
-						        if (vue.list[i].Id == vue.bankId) {
-						            vue.list.splice(i, 1);
-						        }
-						    }
-						    vue.showHideMenu(false);
-							alertMsg("删除成功");
-						}else{
-							alertMsgCenter("删除失败");
-						}
-					},
-					itemAdd: function () {
-					    sessionStorage.setItem("bank_id", "");
-						location.href="edit.html";
-					}
+                    itemUpdate: function () {
+                        sessionStorage.setItem("bank_id", vue.bankId);
+                        location.href = "edit.html";
+                    },
+                    itemDelete: function () {
+                        var result = request("bank_delete", { id: vue.bankId });
+                        if (result.success) {
+                            for (var i = vue.list.length - 1; i >= 0; i--) {
+                                if (vue.list[i].Id == vue.bankId) {
+                                    vue.list.splice(i, 1);
+                                }
+                            }
+                            vue.showHideMenu(false);
+                            alertMsg("删除成功");
+                        } else {
+                            alertMsgCenter("删除失败");
+                        }
+                    },
+                    itemAdd: function () {
+                        sessionStorage.setItem("bank_id", "");
+                        location.href = "edit.html";
+                    }
                 }
             });
 
@@ -110,6 +115,7 @@
         }
     </style>
 </head>
+
 <body>
     <div class="vue">
         <header class="ui-header ui-header-positive ui-border-b">
@@ -174,4 +180,5 @@
         </div>
     </div>
 </body>
+
 </html>
