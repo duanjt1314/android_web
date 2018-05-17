@@ -610,23 +610,6 @@ public class MainActivity extends Activity {
 		// region 用户信息
 
 		/**
-		 * 获得所有用户信息
-		 * 
-		 * @return
-		 */
-		@android.webkit.JavascriptInterface
-		public String getAllUsers() {
-			try {
-				List<Users> list = new UsersDao(getApplicationContext()).GetAll();
-				Gson gson = new Gson();
-				return gson.toJson(new Response(true, "", list));
-			} catch (Exception ex) {
-				Gson gson = new Gson();
-				return gson.toJson(new Response(false, ex.getMessage(), null));
-			}
-		}
-
-		/**
 		 * 获取当前登录用户信息
 		 * 
 		 * @return
@@ -782,19 +765,6 @@ public class MainActivity extends Activity {
 			String id = map.get("id").toString();
 			BankCard bank = new BankCardDao(getApplicationContext()).getById(id);
 			return new Response(true, "成功", bank);
-		}
-
-		// 获取所有银行卡信息
-		@android.webkit.JavascriptInterface
-		public String bank_getAll() {
-			try {
-				List<BankCard> list = new BankCardDao(getApplicationContext()).Gets("");
-				String result = Common.ToJson(new Response(true, "", list));
-				Log.i("银行卡总数", list.size() + "");
-				return result;
-			} catch (Exception e) {
-				return Common.ToJson(new Response(false, "失败," + e.getMessage(), null));
-			}
 		}
 
 		// 保存银行卡信息
