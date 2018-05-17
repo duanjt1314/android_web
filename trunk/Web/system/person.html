@@ -1,11 +1,12 @@
 ﻿<!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml">
+
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <meta charset="utf-8">
     <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no">
     <meta name="format-detection" content="telephone=no">
-    <title>生活费列表</title>
+    <title>个人信息展示和数据上传</title>
     <link href="../frozenui/css/frozen.css" rel="stylesheet" />
     <script src="../frozenui/js/lib/zeptojs/zepto.min.js"></script>
     <script src="../frozenui/js/frozen.js"></script>
@@ -13,13 +14,13 @@
     <script>
         var loading;
         $(function () {
-            var result = JSON.parse(contact.GetCurrUser());
+            var result = request("GetCurrUser", {});
             if (result.success) {
                 var user = result.data;
                 $("input[name=loginId]").val(user.loginId);
                 $("input[name=name]").val(user.name);
                 $("input[name=mail]").val(user.mail);
-            }else {
+            } else {
                 alertMsgCenter(result.msg);
             }
 
@@ -31,27 +32,27 @@
                 setTimeout(GetUploadCount, 10);
             });
         });
-		
-		//验证是否有需要上传的数据
-		function GetUploadCount(){
-			var result = JSON.parse(contact.GetUploadCount());
-			if (result.success == false) {
-				//失败
+
+        //验证是否有需要上传的数据
+        function GetUploadCount() {
+            var result=request("GetUploadCount",{});
+            if (result.success == false) {
+                //失败
                 loading.loading("hide");
                 alertMsgCenter(result.msg);
             } else {
-				if(result.data>0){
-					UploadLifing();
-				} else {
-				    loading.loading("hide");
-					alertMsgCenter("没有需要上传的数据");
-				}
+                if (result.data > 0) {
+                    UploadLifing();
+                } else {
+                    loading.loading("hide");
+                    alertMsgCenter("没有需要上传的数据");
+                }
             }
-		}
+        }
 
         //上传生活费信息
         function UploadLifing() {
-            var result = JSON.parse(contact.UploadLifing());
+            var result=request("UploadLifing",{});
             if (result.success == false) {
                 loading.loading("hide");
                 alertMsgCenter(result.msg);
@@ -62,7 +63,7 @@
 
         //上传纯收入信息
         function UploadIncome() {
-            var result = JSON.parse(contact.UploadIncome());
+            var result=request("UploadIncome",{});
             if (result.success == false) {
                 loading.loading("hide");
                 alertMsgCenter(result.msg);
@@ -73,7 +74,7 @@
 
         //上传银行卡信息
         function UploadBankCard() {
-            var result = JSON.parse(contact.UploadBankCard());
+            var result=request("UploadBankCard",{});
             if (result.success == false) {
                 loading.loading("hide");
                 alertMsgCenter(result.msg);
@@ -86,6 +87,7 @@
 
     </script>
 </head>
+
 <body>
     <header class="ui-header ui-header-positive ui-border-b">
         <ul class="ui-row-flex">
@@ -95,7 +97,7 @@
             <li class="ui-col ui-flex ui-flex-pack-center" style="-webkit-box-flex:inherit; width:140px;">
                 <h1>个人信息</h1>
             </li>
-            <li class="ui-col ui-flex ui-flex-pack-end" >
+            <li class="ui-col ui-flex ui-flex-pack-end">
                 <i id="btnUpload">数据上传</i>
             </li>
         </ul>
@@ -105,7 +107,7 @@
         <div style="text-align:center;padding:30px 0px 20px 0px">
             <img src="../image/logo.jpg" width="80" />
         </div>
-        <form action="#">            
+        <form action="#">
             <div class="ui-form-item ui-border-b">
                 <label>账号</label>
                 <input type="text" value="duanjt" readonly="readonly" name="loginId">
@@ -119,8 +121,9 @@
                 <input type="text" value="2123211212132@qq.com" readonly="readonly" name="mail">
             </div>
         </form>
-        
+
     </section>
 
 </body>
+
 </html>

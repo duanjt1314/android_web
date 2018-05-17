@@ -398,17 +398,16 @@ public class MainActivity extends Activity {
 		 * 
 		 * @return
 		 */
-		@android.webkit.JavascriptInterface
-		public String GetUploadCount() {
+		public Response GetUploadCount(HashMap map) {
 			try {
 				List<LifingCost> list = new LifingCostDao(getApplicationContext()).Gets("and is_upload='0' and create_by='" + Common.currUsers.getId() + "'");
 				int count = list.size();
 				count += incomeDao.Gets("and is_upload='0' and create_by='" + Common.currUsers.getId() + "'").size();
 				count += bankCardDao.Gets("and is_upload='0' and create_by='" + Common.currUsers.getId() + "'").size();
-				return Common.ToJson(new Response(true, "", count));
+				return new Response(true, "", count);
 			} catch (Exception ex) {
 				Log.e("请求异常", ex.getMessage());
-				return Common.ToJson(new Response(false, ex.getMessage(), null));
+				return new Response(false, ex.getMessage(), null);
 			}
 		}
 
@@ -417,8 +416,7 @@ public class MainActivity extends Activity {
 		 * 
 		 * @return
 		 */
-		@android.webkit.JavascriptInterface
-		public String UploadLifing() {
+		public Response UploadLifing(HashMap map) {
 			try {
 				Log.i("提示", "准备上传数据到" + Common.systemUrl);
 				List<LifingCost> list = new LifingCostDao(getApplicationContext()).Gets("and is_upload='0' and create_by='" + Common.currUsers.getId() + "'");
@@ -450,14 +448,14 @@ public class MainActivity extends Activity {
 						lifingCostDao.ModifyIsUpload(list);
 					}
 					Log.i("请求返回", result);
-					return result;
+					return new Gson().fromJson(result, Response.class);
 				} else {
 					Log.i("生活费", "没有需要上传的数据");
-					return Common.ToJson(new Response(true, "没有需要上传的数据", null));
+					return new Response(true, "没有需要上传的数据", null);
 				}
 			} catch (Exception ex) {
 				Log.e("请求异常", ex.getMessage());
-				return Common.ToJson(new Response(false, ex.getMessage(), null));
+				return new Response(false, ex.getMessage(), null);
 			}
 		}
 
@@ -466,8 +464,7 @@ public class MainActivity extends Activity {
 		 * 
 		 * @return
 		 */
-		@android.webkit.JavascriptInterface
-		public String UploadBankCard() {
+		public Response UploadBankCard(HashMap map) {
 			try {
 				Log.i("提示", "准备上传数据到" + Common.systemUrl);
 				List<BankCard> list = bankCardDao.Gets("and is_upload='0' and create_by='" + Common.currUsers.getId() + "'");
@@ -497,14 +494,14 @@ public class MainActivity extends Activity {
 						bankCardDao.ModifyIsUpload(list);
 					}
 					Log.i("请求返回", result);
-					return result;
+					return new Gson().fromJson(result, Response.class);
 				} else {
 					Log.i("生活费", "没有需要上传的数据");
-					return Common.ToJson(new Response(true, "没有需要上传的数据", null));
+					return new Response(true, "没有需要上传的数据", null);
 				}
 			} catch (Exception ex) {
 				Log.e("请求异常", ex.getMessage());
-				return Common.ToJson(new Response(false, ex.getMessage(), null));
+				return new Response(false, ex.getMessage(), null);
 			}
 		}
 
@@ -513,8 +510,7 @@ public class MainActivity extends Activity {
 		 * 
 		 * @return
 		 */
-		@android.webkit.JavascriptInterface
-		public String UploadIncome() {
+		public Response UploadIncome(HashMap map) {
 			try {
 				Log.i("提示", "准备上传数据到" + Common.systemUrl);
 				List<Income> list = incomeDao.Gets("and is_upload='0' and create_by='" + Common.currUsers.getId() + "'");
@@ -543,15 +539,14 @@ public class MainActivity extends Activity {
 						Log.i("日志", "请求的数据返回成功,将状态修改为已上传");
 						incomeDao.ModifyIsUpload(list);
 					}
-					Log.i("请求返回", result);
-					return result;
+					return new Gson().fromJson(result, Response.class);
 				} else {
 					Log.i("生活费", "没有需要上传的数据");
-					return Common.ToJson(new Response(true, "没有需要上传的数据", null));
+					return new Response(true, "没有需要上传的数据", null);
 				}
 			} catch (Exception ex) {
 				Log.e("请求异常", ex.getMessage());
-				return Common.ToJson(new Response(false, ex.getMessage(), null));
+				return new Response(false, ex.getMessage(), null);
 			}
 		}
 
@@ -635,12 +630,11 @@ public class MainActivity extends Activity {
 		 * 
 		 * @return
 		 */
-		@android.webkit.JavascriptInterface
-		public String GetCurrUser() {
+		public Response GetCurrUser(HashMap map) {
 			try {
-				return Common.ToJson(new Response(true, "", Common.currUsers));
+				return new Response(true, "", Common.currUsers);
 			} catch (Exception ex) {
-				return Common.ToJson(new Response(false, ex.getMessage(), null));
+				return new Response(false, ex.getMessage(), null);
 			}
 		}
 
