@@ -121,7 +121,7 @@
                 console.log(e);
                 if (e.index == 0) {
                     //清除
-                    var result = JSON.parse(contact.bank_clear());
+                    var result = request("bank_clear", {});
                     if (result.success == true) {
                         $("#div_content").html("银行卡信息清除成功");
                     } else {
@@ -146,7 +146,7 @@
                 console.log(e);
                 if (e.index == 0) {
                     //清除
-                    var result = JSON.parse(contact.lifing_clear());
+                    var result = request("lifing_clear", {});
                     if (result.success == true) {
                         $("#div_content").html("生活费信息清除成功");
                     } else {
@@ -171,7 +171,7 @@
                 console.log(e);
                 if (e.index == 0) {
                     //清除
-                    var result = JSON.parse(contact.income_clear());
+                    var result = request("income_clear", {});
                     if (result.success == true) {
                         $("#div_content").html("收入信息清除成功");
                     } else {

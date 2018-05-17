@@ -44,22 +44,6 @@
             }
         }
 
-        //网上查询的，测试未通过
-        function testFun() {
-            $("#div_content").html("准备1");
-            var json = {
-                "service": "contact",
-                "action": "diction_list"
-            };
-            AndroidHtml5.callNative(json, { "parentId": "0" }, function (data) {
-                //成功
-                $("#div_content").html("成功" + data);
-            }, function (data) {
-                //失败
-                $("#div_content").html("失败" + data);
-            });
-        }
-
     </script>
 </head>
 

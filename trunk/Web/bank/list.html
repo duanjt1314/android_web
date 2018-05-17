@@ -30,7 +30,7 @@
                 el: ".vue",
                 data: {
                     list: [],//获取数据
-                    banks: JSON.parse(contact.diction_list(1000100000)).data,//所有银行卡信息
+                    banks: request("diction_list", { parentId: 1000100000 }).data,//所有银行卡信息
                     bankType:"",
 					bankId:"",
                     msg: "加载更多...",

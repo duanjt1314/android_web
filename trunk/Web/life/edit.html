@@ -1,5 +1,6 @@
 ﻿<!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml">
+
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <meta charset="utf-8">
@@ -15,17 +16,16 @@
     <script src="../script/Duanjt.js"></script>
     <script src="../script/CusDate.js"></script>
     <script src="../script/DictionComb.js"></script>
-    <script src="../script/contact.js"></script>
     <script>
         $(function () {
-            var html = template("detail", { Data: { } });
+            var html = template("detail", { Data: {} });
             $(".ui-container").html(html);
 
             var cus = $(".ui-select-group").CusDate();
-            
+
             var type = $("#CostTypeId").DictionComb({
                 hiddenName: "CostTypeId",
-                data: JSON.parse(contact.diction_list(1000300000)).data
+                data: request("diction_list", { parentId: 1000300000 }).data
             });
 
             $("#btnSave").tap(function () {
@@ -46,10 +46,10 @@
                     Price: $("input[name=Price]").val(),
                     CostTypeId: $("select[name=CostTypeId]").val(),
                     Notes: $("textarea[name=Notes]").val(),
-                    IsMark: $("input[name=IsMark]").attr("checked")?"true":"false",
+                    IsMark: $("input[name=IsMark]").attr("checked") ? "true" : "false",
                     FamilyPay: $("input[name=FamilyPay]").attr("checked") ? "true" : "false"
                 };
-                var result = JSON.parse(contact.lifing_save(JSON.stringify(val)));
+                var result = request("lifing_save", { objString: JSON.stringify(val) });
                 if (result.success == true) {
                     //清空数据
                     $("input[name=Id]").val("");
@@ -65,7 +65,7 @@
             //判断是新增还是修改
             var id = sessionStorage.getItem("life_id");//Duanjt.Url.GetPara(location.href)["id"];
             if (id) {
-                var result = JSON.parse(contact.lifing_getbyid(id));
+                var result = request("lifing_getbyid", { id: id });
                 if (result.success) {
                     var index = result.data;
                     cus.setTime(index.Time);
@@ -75,7 +75,7 @@
                     $("select[name=CostTypeId]").val(index.CostTypeId);
                     $("textarea[name=Notes]").val(index.Notes);
                     if (index.IsMark == "true") {
-                        $("input[name=IsMark]").prop("checked",true);
+                        $("input[name=IsMark]").prop("checked", true);
                     }
                     if (index.FamilyPay == "true") {
                         $("input[name=FamilyPay]").prop("checked", true);
@@ -89,6 +89,7 @@
         });
     </script>
 </head>
+
 <body>
     <header class="ui-header ui-header-positive ui-border-b">
         <ul class="ui-row-flex">
@@ -107,6 +108,7 @@
     <section class="ui-container"></section>
 
 </body>
+
 </html>
 
 <script type="text/html" id="detail">

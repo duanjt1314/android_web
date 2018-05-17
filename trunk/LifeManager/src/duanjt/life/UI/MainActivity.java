@@ -333,7 +333,7 @@ public class MainActivity extends Activity {
 		public Response DownIncome(HashMap map) {
 			int total = 0;
 			List<BasicNameValuePair> nvps = new ArrayList<BasicNameValuePair>();
-			nvps.add(new BasicNameValuePair("pageSize",map.get("pageSize").toString()));
+			nvps.add(new BasicNameValuePair("pageSize", map.get("pageSize").toString()));
 			nvps.add(new BasicNameValuePair("start", map.get("start").toString()));
 			nvps.add(new BasicNameValuePair("createBy", Common.currUsers.getId()));
 			String result = Common.getActionResult("/Service/GetIncome", nvps);
@@ -368,9 +368,10 @@ public class MainActivity extends Activity {
 		public Response DownBankCard(HashMap map) {
 			int total = 0;
 			List<BasicNameValuePair> nvps = new ArrayList<BasicNameValuePair>();
-			nvps.add(new BasicNameValuePair("pageSize",map.get("pageSize").toString()));
+			nvps.add(new BasicNameValuePair("pageSize", map.get("pageSize").toString()));
 			nvps.add(new BasicNameValuePair("start", map.get("start").toString()));
-			// nvps.add(new BasicNameValuePair("createBy", Common.currUsers.getId()));
+			// nvps.add(new BasicNameValuePair("createBy",
+			// Common.currUsers.getId()));
 			String result = Common.getActionResult("/Service/GetBankCard", nvps);
 			try {
 				JSONObject jsonObject = new JSONObject(result);
@@ -594,13 +595,13 @@ public class MainActivity extends Activity {
 		 * 
 		 * @return
 		 */
-		@android.webkit.JavascriptInterface
-		public String diction_list(int parentId) {
+		public Response diction_list(HashMap map) {
 			try {
+				int parentId = Integer.parseInt(map.get("parentId").toString());
 				List<Diction> list = new DictionDao(getApplicationContext()).GetByParentId(parentId);
-				return Common.ToJson(new Response(true, "", list));
+				return new Response(true, "", list);
 			} catch (Exception ex) {
-				return Common.ToJson(new Response(false, ex.getMessage(), null));
+				return new Response(false, ex.getMessage(), null);
 			}
 		}
 
@@ -641,9 +642,11 @@ public class MainActivity extends Activity {
 		// endregion
 
 		// region 生活费信息
-		@android.webkit.JavascriptInterface
-		public String lifing_getpage(int pageIndex, int pageSize, String keyWord) {
+		public Response lifing_getpage(HashMap map) {
 			try {
+				int pageIndex = Integer.parseInt(map.get("pageIndex").toString());
+				int pageSize = Integer.parseInt(map.get("pageSize").toString());
+				String keyWord = map.get("keyWord").toString();
 				String sqlWhere = "";
 				if (!keyWord.equals("")) {
 					sqlWhere = " and (reason like '%@key%' or notes like '%@key%' or price='@key') and create_by='" + Common.currUsers.getId() + "'";
@@ -654,29 +657,26 @@ public class MainActivity extends Activity {
 					String typeName = new DictionDao(getApplicationContext()).GetNameById(list.get(i).getCostTypeId());
 					list.get(i).setCostTypeName(typeName);
 				}
-				String result = Common.ToJson(new Response(true, "请求成功", list));
-				Log.i("生活费列表返回", result);
-				return result;
+				return new Response(true, "请求成功", list);
 			} catch (Exception ex) {
-				return Common.ToJson(new Response(false, ex.getMessage(), null));
+				return new Response(false, ex.getMessage(), null);
 			}
 		}
 
 		// 根据编号查询生活费信息
-		@android.webkit.JavascriptInterface
-		public String lifing_getbyid(String id) {
+		public Response lifing_getbyid(HashMap map) {
 			try {
+				String id = map.get("id").toString();
 				LifingCost index = new LifingCostDao(getApplicationContext()).getById(id);
-				String result = Common.ToJson(new Response(true, "请求成功", index));
-				return result;
+				return new Response(true, "请求成功", index);
 			} catch (Exception ex) {
-				return Common.ToJson(new Response(false, ex.getMessage(), null));
+				return new Response(false, ex.getMessage(), null);
 			}
 		}
 
-		@android.webkit.JavascriptInterface
-		public String lifing_save(String objString) {
+		public Response lifing_save(HashMap map) {
 			try {
+				String objString = map.get("objString").toString();
 				Boolean con = false;
 				LifingCost index = (LifingCost) Common.ToObject(objString, LifingCost.class);
 				index.setIsUpload("0");
@@ -696,34 +696,31 @@ public class MainActivity extends Activity {
 					con = new LifingCostDao(getApplicationContext()).Modify(index);
 				}
 				if (con) {
-					return Common.ToJson(new Response(true, "保存成功", null));
+					return new Response(true, "保存成功", null);
 				} else {
-					return Common.ToJson(new Response(false, "保存失败", null));
+					return new Response(false, "保存失败", null);
 				}
 			} catch (Exception ex) {
-				return Common.ToJson(new Response(false, ex.getMessage(), null));
+				return new Response(false, ex.getMessage(), null);
 			}
 		}
 
-		@android.webkit.JavascriptInterface
-		public String lifing_delete(String id) {
+		public Response lifing_delete(HashMap map) {
 			try {
+				String id = map.get("id").toString();
 				new LifingCostDao(getApplicationContext()).Delete(id);
-				String result = Common.ToJson(new Response(true, "删除成功", null));
-				return result;
+				return new Response(true, "删除成功", null);
 			} catch (Exception ex) {
-				return Common.ToJson(new Response(false, ex.getMessage(), null));
+				return new Response(false, ex.getMessage(), null);
 			}
 		}
 
-		@android.webkit.JavascriptInterface
-		public String lifing_clear() {
+		public Response lifing_clear(HashMap map) {
 			try {
 				new LifingCostDao(getApplicationContext()).DeleteAll();
-				String result = Common.ToJson(new Response(true, "删除成功", null));
-				return result;
+				return new Response(true, "删除成功", null);
 			} catch (Exception ex) {
-				return Common.ToJson(new Response(false, ex.getMessage(), null));
+				return new Response(false, ex.getMessage(), null);
 			}
 		}
 
@@ -856,13 +853,12 @@ public class MainActivity extends Activity {
 		 * 
 		 * @return
 		 */
-		@android.webkit.JavascriptInterface
-		public String bank_clear() {
+		public Response bank_clear(HashMap map) {
 			try {
 				new BankCardDao(getApplicationContext()).DeleteAll();
-				return Common.ToJson(new Response(true, "数据清除成功", null));
+				return new Response(true, "数据清除成功", null);
 			} catch (Exception e) {
-				return Common.ToJson(new Response(false, "数据清除失败", null));
+				return new Response(false, "数据清除失败", null);
 			}
 		}
 
@@ -894,14 +890,12 @@ public class MainActivity extends Activity {
 			}
 		}
 
-		@android.webkit.JavascriptInterface
-		public String income_clear() {
+		public Response income_clear(HashMap map) {
 			try {
 				incomeDao.DeleteAll();
-				String result = Common.ToJson(new Response(true, "删除成功", null));
-				return result;
+				return new Response(true, "删除成功", null);
 			} catch (Exception ex) {
-				return Common.ToJson(new Response(false, ex.getMessage(), null));
+				return new Response(false, ex.getMessage(), null);
 			}
 		}
 

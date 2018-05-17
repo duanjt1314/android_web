@@ -1,5 +1,6 @@
 ﻿<!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml">
+
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <meta charset="utf-8">
@@ -12,7 +13,6 @@
     <script src="../script/template.js"></script>
     <script src="../script/Duanjt.js"></script>
     <script src="../script/common.js"></script>
-    <script src="../script/contact.js"></script>
     <script>
         //全局变量
         var $list = null;//即将操作的对象
@@ -35,7 +35,7 @@
             $("#btnDelete").on("tap", function () {
                 $('.ui-actionsheet').removeClass('show');
                 var id = $list.data("id");
-                var result = JSON.parse(contact.lifing_delete(id));
+                var result = request("lifing_delete", { id: id });
                 if (result.success) {
                     alertMsg("删除成功");
                     $list.remove();
@@ -89,7 +89,11 @@
         //加载数据
         function initData() {
             var keyWord = $("#txtKeyword").val();
-            var result = JSON.parse(contact.lifing_getpage(pageIndex, pageSize, keyWord));
+            var result = request("lifing_getpage", {
+                pageIndex: pageIndex,
+                pageSize: pageSize,
+                keyWord: keyWord
+            });
             var html = "";
 
             if (result.success) {
@@ -117,6 +121,7 @@
         }
     </style>
 </head>
+
 <body>
     <header class="ui-header ui-header-positive ui-border-b">
         <ul class="ui-row-flex">
@@ -159,6 +164,7 @@
         </div>
     </div>
 </body>
+
 </html>
 
 <!--列表模版-->
