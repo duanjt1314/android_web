@@ -732,15 +732,12 @@ public class MainActivity extends Activity {
 		 * 
 		 * @return
 		 */
-		@android.webkit.JavascriptInterface
-		public String lifing_GetCollectByDay() {
+		public Response lifing_GetCollectByDay(HashMap map) {
 			try {
 				List<HashMap<String, String>> list = lifingCostDao.GetCollectByDay();
-				String result = Common.ToJson(new Response(true, "成功", list));
-				Log.i("按日统计消费", result);
-				return result;
+				return new Response(true, "成功", list);
 			} catch (Exception ex) {
-				return Common.ToJson(new Response(false, ex.getMessage(), null));
+				return new Response(false, ex.getMessage(), null);
 			}
 		}
 
@@ -749,15 +746,12 @@ public class MainActivity extends Activity {
 		 * 
 		 * @return
 		 */
-		@android.webkit.JavascriptInterface
-		public String lifing_GetCollectByMonth() {
+		public Response lifing_GetCollectByMonth(HashMap map) {
 			try {
 				List<HashMap<String, String>> list = lifingCostDao.GetCollectByMonth();
-				String result = Common.ToJson(new Response(true, "成功", list));
-				Log.i("按月统计消费", result);
-				return result;
+				return new Response(true, "成功", list);
 			} catch (Exception ex) {
-				return Common.ToJson(new Response(false, ex.getMessage(), null));
+				return new Response(false, ex.getMessage(), null);
 			}
 		}
 

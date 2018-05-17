@@ -1,5 +1,6 @@
 ﻿<!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml">
+
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <meta charset="utf-8">
@@ -13,7 +14,8 @@
     <script src="../script/Duanjt.js"></script>
     <script src="../script/common.js"></script>
     <script src="../script/contact.js"></script>
-    <script src="../script/vue.min.js"></script><!--vue框架-->
+    <script src="../script/vue.min.js"></script>
+    <!--vue框架-->
 
     <script>
         $(function () {
@@ -25,8 +27,8 @@
             new Vue({
                 el: ".ui-container",
                 data: {
-                    day: JSON.parse(contact.lifing_GetCollectByDay()),
-                    month: JSON.parse(contact.lifing_GetCollectByMonth())
+                    day: request("lifing_GetCollectByDay", {}),
+                    month: request("lifing_GetCollectByMonth", {})
                 }
             });
 
@@ -36,12 +38,13 @@
                 autoplay: false//禁止自动播放
             });
 
-            
+
         });
     </script>
     <style>
     </style>
 </head>
+
 <body>
     <header class="ui-header ui-header-positive ui-border-b">
         <ul class="ui-row-flex">
@@ -67,7 +70,10 @@
                 <li class="current">
                     <table class="ui-table ui-border-tb">
                         <thead>
-                            <tr><th>日期</th><th>支出金额</th></tr>
+                            <tr>
+                                <th>日期</th>
+                                <th>支出金额</th>
+                            </tr>
                         </thead>
                         <tbody>
                             <tr v-for="d in day.data">
@@ -81,7 +87,10 @@
                 <li>
                     <table class="ui-table ui-border-tb">
                         <thead>
-                            <tr><th>日期</th><th>支出金额</th></tr>
+                            <tr>
+                                <th>日期</th>
+                                <th>支出金额</th>
+                            </tr>
                         </thead>
                         <tbody>
                             <tr v-for="d in month.data">
@@ -95,6 +104,7 @@
         </div>
     </section>
 </body>
+
 </html>
 
 <!--列表模版-->
