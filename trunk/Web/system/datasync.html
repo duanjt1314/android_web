@@ -73,7 +73,7 @@
 
         //下载纯收入信息
         function DownIncome() {
-            var result = JSON.parse(contact.DownIncome(pageSize, start));
+            var result = request("DownIncome", { pageSize: pageSize, start: start });
             if (result.success == true) {
                 start += pageSize;
                 $("#div_content").html("数据下载成功:" + start);
@@ -90,7 +90,7 @@
 
         //下载银行卡信息
         function DownBankCard() {
-            var result = JSON.parse(contact.DownBankCard(pageSize, start));
+            var result = request("DownBankCard", { pageSize: pageSize, start: start });
             if (result.success == true) {
                 start += pageSize;
                 $("#div_content").html("数据下载成功:" + start);

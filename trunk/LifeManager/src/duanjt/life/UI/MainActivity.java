@@ -335,12 +335,11 @@ public class MainActivity extends Activity {
 		 * @param start
 		 * @return
 		 */
-		@android.webkit.JavascriptInterface
-		public String DownIncome(String pageSize, String start) {
+		public Response DownIncome(HashMap map) {
 			int total = 0;
 			List<BasicNameValuePair> nvps = new ArrayList<BasicNameValuePair>();
-			nvps.add(new BasicNameValuePair("pageSize", pageSize));
-			nvps.add(new BasicNameValuePair("start", start));
+			nvps.add(new BasicNameValuePair("pageSize",map.get("pageSize").toString()));
+			nvps.add(new BasicNameValuePair("start", map.get("start").toString()));
 			nvps.add(new BasicNameValuePair("createBy", Common.currUsers.getId()));
 			String result = Common.getActionResult("/Service/GetIncome", nvps);
 			try {
@@ -356,12 +355,12 @@ public class MainActivity extends Activity {
 					new IncomeDao(getApplicationContext()).Save(incomes);
 				} else {
 					// 失败
-					return Common.ToJson(new Response(false, jsonObject.getString("msg"), null));
+					return new Response(false, jsonObject.getString("msg"), null);
 				}
 			} catch (JSONException e) {
-				return Common.ToJson(new Response(false, e.getMessage(), null));
+				return new Response(false, e.getMessage(), null);
 			}
-			return Common.ToJson(new Response(true, "成功", total));
+			return new Response(true, "成功", total);
 		}
 
 		/**
@@ -371,14 +370,12 @@ public class MainActivity extends Activity {
 		 * @param start
 		 * @return
 		 */
-		@android.webkit.JavascriptInterface
-		public String DownBankCard(String pageSize, String start) {
+		public Response DownBankCard(HashMap map) {
 			int total = 0;
 			List<BasicNameValuePair> nvps = new ArrayList<BasicNameValuePair>();
-			nvps.add(new BasicNameValuePair("pageSize", pageSize));
-			nvps.add(new BasicNameValuePair("start", start));
-			// nvps.add(new BasicNameValuePair("createBy",
-			// Common.currUsers.getId()));
+			nvps.add(new BasicNameValuePair("pageSize",map.get("pageSize").toString()));
+			nvps.add(new BasicNameValuePair("start", map.get("start").toString()));
+			// nvps.add(new BasicNameValuePair("createBy", Common.currUsers.getId()));
 			String result = Common.getActionResult("/Service/GetBankCard", nvps);
 			try {
 				JSONObject jsonObject = new JSONObject(result);
@@ -393,12 +390,12 @@ public class MainActivity extends Activity {
 					new BankCardDao(getApplicationContext()).Save(banks);
 				} else {
 					// 失败
-					return Common.ToJson(new Response(false, jsonObject.getString("msg"), null));
+					return new Response(false, jsonObject.getString("msg"), null);
 				}
 			} catch (JSONException e) {
-				return Common.ToJson(new Response(false, e.getMessage(), null));
+				return new Response(false, e.getMessage(), null);
 			}
-			return Common.ToJson(new Response(true, "成功", total));
+			return new Response(true, "成功", total);
 		}
 
 		/**

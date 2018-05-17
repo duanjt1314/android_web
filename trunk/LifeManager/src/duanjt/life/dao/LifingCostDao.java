@@ -335,7 +335,7 @@ public class LifingCostDao {
 	// region 统计
 
 	/**
-	 * 按日统计消费信息
+	 * 按日统计消费信息，统计最近两个月的数据
 	 * 
 	 * @return
 	 */
@@ -363,7 +363,7 @@ public class LifingCostDao {
 	}
 
 	/**
-	 * 按月统计消费信息
+	 * 按月统计消费信息,统计最近一年的数据
 	 * 
 	 * @return
 	 */
@@ -373,7 +373,7 @@ public class LifingCostDao {
 		Date date = new Date();// 取时间
 		Calendar calendar = new GregorianCalendar();
 		calendar.setTime(date);
-		calendar.add(calendar.DATE, -180);// 把日期往后增加一天.整数往后推,负数往前移动
+		calendar.add(calendar.DATE, -365);// 把日期往后增加一天.整数往后推,负数往前移动
 		date = calendar.getTime(); // 这个时间就是日期往后推一天的结果
 
 		Cursor c = db.rawQuery(sql, new String[] { Common.formatDate(date, "yyyy-MM-dd") });
