@@ -232,8 +232,7 @@ public class MainActivity extends Activity {
 		 * 
 		 * @throws Exception
 		 */
-		@android.webkit.JavascriptInterface
-		public String DownLoadUsers() {
+		public Response DownLoadUsers(HashMap map) {
 			// 下载用户数据
 			int total = 0;
 			List<BasicNameValuePair> nvps = new ArrayList<BasicNameValuePair>();
@@ -249,15 +248,12 @@ public class MainActivity extends Activity {
 						total = jsonObject.getJSONArray("data").length();
 					}
 				} else {
-					Response res = new Response(false, jsonObject.getString("msg"), null);
-					return new Gson().toJson(res);
+					return new Response(false, jsonObject.getString("msg"), null);
 				}
 			} catch (JSONException e) {
-				Response res = new Response(false, e.getMessage(), null);
-				return new Gson().toJson(res);
+				return new Response(false, e.getMessage(), null);
 			}
-			Response res = new Response(true, "成功", null);
-			return new Gson().toJson(res);
+			return new Response(true, "成功", null);
 		}
 
 		/**
@@ -265,8 +261,7 @@ public class MainActivity extends Activity {
 		 * 
 		 * @throws Exception
 		 */
-		@android.webkit.JavascriptInterface
-		public String DownLoadDiction() {
+		public Response DownLoadDiction(HashMap map) {
 			// 下载用户数据
 			int total = 0;
 			List<BasicNameValuePair> nvps = new ArrayList<BasicNameValuePair>();
@@ -282,12 +277,12 @@ public class MainActivity extends Activity {
 						total = jsonObject.getJSONArray("data").length();
 					}
 				} else {
-					return Common.ToJson(new Response(false, jsonObject.getString("msg"), null));
+					return new Response(false, jsonObject.getString("msg"), null);
 				}
 			} catch (JSONException e) {
-				return Common.ToJson(new Response(false, e.getMessage(), null));
+				return new Response(false, e.getMessage(), null);
 			}
-			return Common.ToJson(new Response(true, "成功", null));
+			return new Response(true, "成功", null);
 		}
 
 		/**

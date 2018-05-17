@@ -1,11 +1,12 @@
 ﻿<!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml">
+
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <meta charset="utf-8">
     <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no">
     <meta name="format-detection" content="telephone=no">
-    <title>生活费列表</title>
+    <title>基础数据下载</title>
     <link href="../frozenui/css/frozen.css" rel="stylesheet" />
     <script src="../frozenui/js/lib/zeptojs/zepto.min.js"></script>
     <script src="../frozenui/js/frozen.js"></script>
@@ -24,7 +25,7 @@
 
         //下载用户数据
         function DownLoadUsers() {
-            var result = JSON.parse(contact.DownLoadUsers());
+            var result = request("DownLoadUsers", {});
             if (result.success == true) {
                 $("#div_content").html("准备下载字典数据");
                 setTimeout(DownLoadDiction, 10);
@@ -35,7 +36,7 @@
 
         //下载字典数据
         function DownLoadDiction() {
-            var result = JSON.parse(contact.DownLoadDiction());
+            var result = request("DownLoadDiction", {});
             if (result.success == true) {
                 $("#div_content").html("数据下载成功");
             } else {
@@ -46,13 +47,13 @@
         //网上查询的，测试未通过
         function testFun() {
             $("#div_content").html("准备1");
-            var json = {  
-                "service" : "contact",  
+            var json = {
+                "service": "contact",
                 "action": "diction_list"
-            };      
+            };
             AndroidHtml5.callNative(json, { "parentId": "0" }, function (data) {
                 //成功
-                $("#div_content").html("成功"+data);
+                $("#div_content").html("成功" + data);
             }, function (data) {
                 //失败
                 $("#div_content").html("失败" + data);
@@ -61,6 +62,7 @@
 
     </script>
 </head>
+
 <body>
     <header class="ui-header ui-header-positive ui-border-b">
         <ul class="ui-row-flex">
@@ -85,4 +87,5 @@
     </section>
 
 </body>
+
 </html>
