@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta charset="utf-8">
+    <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no">
+    <meta name="format-detection" content="telephone=no">
+    <title>最近一年内按月的收入和支出统计(不区分家庭内收支)</title>
+    <link href="../frozenui/css/frozen.css" rel="stylesheet" />
+    <script src="../frozenui/js/lib/zeptojs/zepto.min.js"></script>
+    <script src="../frozenui/js/frozen.js"></script>
+    <script src="../script/template.js"></script>
+    <script src="../script/Duanjt.js"></script>
+    <script src="../script/common.js"></script>
+    <script src="../script/echartjs/echarts.min.js"></script>
+    <script>
+        $(function () {
+            var dom = document.getElementById("canvasDiv");
+            var time = [], income = [], lifing = [];
+            var total_income = 0;
+            var total_lifing = 0;
+
+            var result = request("lifing_GetLifeIncomeYear", {});
+            //var result = { "data": [{ "TIME": "2017-05", "LIFE_PRICE": 200, "INCOME_PRICE": 500 }, { "TIME": "2017-06", "LIFE_PRICE": 100, "INCOME_PRICE": 600 }, { "TIME": "2017-07", "LIFE_PRICE": 0, "INCOME_PRICE": 0 }, { "TIME": "2017-08", "LIFE_PRICE": 199, "INCOME_PRICE": 0 }, { "TIME": "2017-09", "LIFE_PRICE": 499, "INCOME_PRICE": 0 }, { "TIME": "2017-10", "LIFE_PRICE": 0, "INCOME_PRICE": 0 }, { "TIME": "2017-11", "LIFE_PRICE": 0, "INCOME_PRICE": 0 }, { "TIME": "2017-12", "LIFE_PRICE": 0, "INCOME_PRICE": 0 }, { "TIME": "2018-01", "LIFE_PRICE": 0, "INCOME_PRICE": 0 }, { "TIME": "2018-02", "LIFE_PRICE": 0, "INCOME_PRICE": 0 }, { "TIME": "2018-03", "LIFE_PRICE": 0, "INCOME_PRICE": 0 }, { "TIME": "2018-04", "LIFE_PRICE": 0, "INCOME_PRICE": 0 }, { "TIME": "2018-05", "LIFE_PRICE": 311, "INCOME_PRICE": 500 }], "msg": "成功", "success": true };
+            if (!result.success) {
+                dom.innerHTML = result.msg;//展示错误消息
+                return;
+            }
+
+            for (var i = 0; i < result.data.length; i++) {
+                time.push(result.data[i].TIME);
+                income.push(result.data[i].INCOME_PRICE);
+                lifing.push(result.data[i].LIFE_PRICE);
+
+                total_income += result.data[i].INCOME_PRICE;
+                total_lifing += result.data[i].LIFE_PRICE;
+            }
+
+            $("#lab_income").html(Duanjt.Float.ToFloat(total_income, 2));
+            $("#lab_lifing").html(Duanjt.Float.ToFloat(total_lifing, 2));
+
+            var myChart = echarts.init(dom);
+            var app = {};
+            option = null;
+            option = {
+                title: {
+                    text: '近一年收支统计'
+                },
+                tooltip: {
+                    trigger: 'axis'
+                },
+                legend: {
+                    data: ['收入', '支出']
+                },
+                xAxis: [
+                    {
+                        type: 'category',
+                        data: time,
+                        axisLabel: {
+                            interval: 0,
+                            rotate: 40
+                        }
+                    }
+                ],
+                yAxis: [
+                    {
+                        type: 'value'
+                    }
+                ],
+                series: [
+                    {
+                        name: '收入',
+                        type: 'bar',
+                        data: income
+                    },
+                    {
+                        name: '支出',
+                        type: 'bar',
+                        data: lifing
+
+                    }
+                ]
+            };
+            if (option && typeof option === "object") {
+                myChart.setOption(option, true);
+            }
+
+        });
+    </script>
+    <style>
+        #canvasDiv {
+            width: 700px;
+            height: 350px;
+            overflow: scroll;
+        }
+    </style>
+</head>
+
+<body>
+    <header class="ui-header ui-header-positive ui-border-b">
+        <ul clas="ui-row-flex">
+            <li class="ui-col ui-flex ui-flex-pack-start">
+                <i class="ui-icon-return" onclick="history.back()"></i>
+            </li>
+            <li class="ui-col ui-flex ui-flex-pack-center" style="-webkit-box-flex:inherit; width:140px;">
+                <h1>支出统计</h1>
+            </li>
+            <li class="ui-col ui-flex ui-flex-pack-end" id="btnAdd">
+
+            </li>
+        </ul>
+    </header>
+    <section class="ui-container">
+        <div style="width: 100%; overflow: scroll">
+            <!-- 上面是图表 -->
+            <div id="canvasDiv"></div>
+        </div>
+        <div class="ui-whitespace">
+            <!-- 用于显示统计详细 -->
+            <p class="ui-txt-justify">累计收入:￥
+                <label id="lab_income"></label>
+            </p>
+            <p class="ui-txt-justify">累计支出:￥
+                <label id="lab_lifing"></label>
+            </p>
+        </div>
+    </section>
+</body>
+
+</html>

@@ -13,6 +13,7 @@ import com.google.gson.*;
 import com.google.gson.reflect.TypeToken;
 
 import duanjt.life.common.*;
+import duanjt.life.common.model.DataTable;
 import duanjt.life.dao.*;
 import duanjt.life.model.*;
 
@@ -730,6 +731,20 @@ public class MainActivity extends Activity {
 			try {
 				List<HashMap<String, String>> list = lifingCostDao.GetCollectByMonth();
 				return new Response(true, "成功", list);
+			} catch (Exception ex) {
+				return new Response(false, ex.getMessage(), null);
+			}
+		}
+		
+		/**
+		 * 统计最近一年的收支数据，按月份汇总
+		 * @param map
+		 * @return
+		 */
+		public Response lifing_GetLifeIncomeYear(HashMap map) {
+			try {
+				DataTable table = lifingCostDao.GetLifeIncomeYear();
+				return new Response(true, "成功", table);
 			} catch (Exception ex) {
 				return new Response(false, ex.getMessage(), null);
 			}

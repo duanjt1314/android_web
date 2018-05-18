@@ -11,7 +11,10 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import duanjt.life.common.Common;
+import duanjt.life.common.DateUtil;
 import duanjt.life.common.Values;
+import duanjt.life.common.model.DataRow;
+import duanjt.life.common.model.DataTable;
 import duanjt.life.model.LifingCost;
 
 import android.content.Context;
@@ -388,6 +391,41 @@ public class LifingCostDao {
 		}
 		c.close();
 		return list;
+	}
+
+	/**
+	 * 统计最近一年的收入和支出数据
+	 * 
+	 * @return
+	 */
+	public DataTable GetLifeIncomeYear() {
+		DataTable dataTable = new DataTable();
+		// 组装查询的sql
+		String sql = "";
+		Date date = DateUtil.AddMonth(new Date(), -12);// 减少12个月
+		for (Date i = date; i.getTime() <= new Date().getTime(); i = DateUtil.AddMonth(i, 1)) {
+			if (i == date) {
+				sql += String.format(" select '%s' time ", DateUtil.Format(i, "yyyy-MM"));
+			} else {
+				sql += String.format(" union all select '%s' ", DateUtil.Format(i, "yyyy-MM"));
+			}
+		}
+
+		sql = "select a.time,ifnull(b.price,0) life_price,ifnull(c.price,0) income_price from" + "( " + sql + " ) a " + "left join ( select SUBSTR(b.time,0,8) time,sum(price) price from Lifing_Cost b " + "group by SUBSTR(b.time,0,8) ) b on a.time=b.time " + "left join( select SUBSTR(b.time,0,8) time,sum(price) price from income b " + "group by SUBSTR(b.time,0,8) ) c on a.time=c.time";
+
+		Cursor c = db.rawQuery(sql, null);
+		if (c.moveToFirst()) {
+			for (int i = 0; i < c.getCount(); i++) {
+				c.moveToPosition(i);// 移动到指定记录
+				DataRow row=new DataRow();
+				row.put("time",c.getString(c.getColumnIndex("time")));
+				row.put("life_price",c.getInt(c.getColumnIndex("life_price")));
+				row.put("income_price",c.getInt(c.getColumnIndex("income_price")));
+				dataTable.add(row);
+			}
+		}
+		c.close();
+		return dataTable;
 	}
 
 	// endregion
