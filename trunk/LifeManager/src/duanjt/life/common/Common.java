@@ -220,6 +220,9 @@ public class Common {
 	 * @return
 	 */
 	public static String ToJson(Object obj) {
+		if(obj==null){
+			return "";
+		}
 		Gson gson = new Gson();
 		return gson.toJson(obj);
 	}

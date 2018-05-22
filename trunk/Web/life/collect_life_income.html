@@ -16,25 +16,28 @@
     <script src="../script/echartjs/echarts.min.js"></script>
     <script>
         $(function () {
+            var result = request("lifing_GetLifeIncomeYear", {});           
+            bindData(result);
+        });
+        function bindData(result) {
             var dom = document.getElementById("canvasDiv");
             var time = [], income = [], lifing = [];
             var total_income = 0;
             var total_lifing = 0;
 
-            var result = request("lifing_GetLifeIncomeYear", {});
-            //var result = { "data": [{ "TIME": "2017-05", "LIFE_PRICE": 200, "INCOME_PRICE": 500 }, { "TIME": "2017-06", "LIFE_PRICE": 100, "INCOME_PRICE": 600 }, { "TIME": "2017-07", "LIFE_PRICE": 0, "INCOME_PRICE": 0 }, { "TIME": "2017-08", "LIFE_PRICE": 199, "INCOME_PRICE": 0 }, { "TIME": "2017-09", "LIFE_PRICE": 499, "INCOME_PRICE": 0 }, { "TIME": "2017-10", "LIFE_PRICE": 0, "INCOME_PRICE": 0 }, { "TIME": "2017-11", "LIFE_PRICE": 0, "INCOME_PRICE": 0 }, { "TIME": "2017-12", "LIFE_PRICE": 0, "INCOME_PRICE": 0 }, { "TIME": "2018-01", "LIFE_PRICE": 0, "INCOME_PRICE": 0 }, { "TIME": "2018-02", "LIFE_PRICE": 0, "INCOME_PRICE": 0 }, { "TIME": "2018-03", "LIFE_PRICE": 0, "INCOME_PRICE": 0 }, { "TIME": "2018-04", "LIFE_PRICE": 0, "INCOME_PRICE": 0 }, { "TIME": "2018-05", "LIFE_PRICE": 311, "INCOME_PRICE": 500 }], "msg": "成功", "success": true };
             if (!result.success) {
                 dom.innerHTML = result.msg;//展示错误消息
                 return;
             }
 
-            for (var i = 0; i < result.data.length; i++) {
-                time.push(result.data[i].TIME);
-                income.push(result.data[i].INCOME_PRICE);
-                lifing.push(result.data[i].LIFE_PRICE);
+            var data = result.data;
+            for (var i = 0; i < data.length; i++) {
+                time.push(data[i].TIME);
+                income.push(data[i].INCOME_PRICE);
+                lifing.push(data[i].LIFE_PRICE);
 
-                total_income += result.data[i].INCOME_PRICE;
-                total_lifing += result.data[i].LIFE_PRICE;
+                total_income += data[i].INCOME_PRICE;
+                total_lifing += data[i].LIFE_PRICE;
             }
 
             $("#lab_income").html(Duanjt.Float.ToFloat(total_income, 2));
@@ -85,8 +88,7 @@
             if (option && typeof option === "object") {
                 myChart.setOption(option, true);
             }
-
-        });
+        }
     </script>
     <style>
         #canvasDiv {

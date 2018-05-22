@@ -183,6 +183,19 @@ public class MainActivity extends Activity {
 			}
 		}
 
+		/**
+		 * 公共后台访问方法，异步请求，将通过回调函数的方法响应
+		 * 方法名是methodName，回调名称为callback。返回的数据将是Response序列化后的字符串
+		 * 暂时还没有验证通过
+		 * 
+		 * @param content
+		 */
+		@android.webkit.JavascriptInterface
+		public void requestAsyn(String content) {
+			Thread thread = new MyThread(content);
+			thread.start();
+		}
+
 		// endregion
 
 		// region 登录和退出
@@ -735,9 +748,10 @@ public class MainActivity extends Activity {
 				return new Response(false, ex.getMessage(), null);
 			}
 		}
-		
+
 		/**
 		 * 统计最近一年的收支数据，按月份汇总
+		 * 
 		 * @param map
 		 * @return
 		 */
@@ -924,4 +938,63 @@ public class MainActivity extends Activity {
 
 	}
 
+	/**
+	 * 异步执行的线程
+	 * 
+	 * @author Administrator
+	 * 
+	 */
+	private class MyThread extends Thread {
+		private String content;
+
+		public MyThread(String content) {
+			this.content = content;
+		}
+		
+		public void run()
+	    {
+			Response res = null;
+			try {
+				Log.i("异步接收数据", content);
+				HashMap map = null;
+				try {
+					map = Common.fromJson(content);
+					// map=new Gson().fromJson(content, HashMap.class);
+				} catch (Exception e) {
+					res = new Response(false, "接收的数据转换为字典失败,接收数据:" + content, null);
+				}
+
+				if (map != null) {
+					if (!map.containsKey("methodName") || !map.containsKey("callback")) {
+						res = new Response(false, "接收数据必须包含键methodName和callback,无法查找方法,接收数据:" + content, null);
+					} else {
+						String methodName = map.get("methodName").toString();
+						String callback = map.get("callback").toString();
+						Method m = Contact.class.getMethod(methodName, HashMap.class);
+						if (m == null) {
+							res = new Response(false, "未找到方法:" + methodName + ",接收数据:" + content, null);
+						} else {
+							map.remove("methodName");
+							map.remove("callback");
+							Object result = m.invoke(this, map);// 统一返回Response对象
+							if (result.getClass() != Response.class) {
+								Log.e("异常", "方法:" + methodName + " 返回的不是Response对象");
+							}
+
+							res = (Response) result;
+							Log.i("调用回调函数", callback);
+							Log.i("调用回调函数", Common.ToJson(result));
+							webView.loadUrl(String.format("javascript:%s(%s)", callback,Common.ToJson(result)));
+						}
+					}
+				}
+			} catch (Exception ex) {
+				Log.e("请求异常", ex.getMessage());
+				res = new Response(false, "出现了无法识别的异常," + ex.getMessage(), null);
+			}finally{				
+				Log.i("finally打印", Common.ToJson(res));
+			}
+
+	    }
+	}
 }
