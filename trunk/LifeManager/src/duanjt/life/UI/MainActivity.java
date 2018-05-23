@@ -17,11 +17,16 @@ import duanjt.life.common.model.DataTable;
 import duanjt.life.dao.*;
 import duanjt.life.model.*;
 
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.annotation.SuppressLint;
+import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.ClipData;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.DialogInterface.OnClickListener;
 import android.util.Log;
 import android.view.*;
@@ -30,6 +35,9 @@ import android.webkit.*;
 public class MainActivity extends Activity {
 
 	WebView webView = null;
+	private ValueCallback<Uri> uploadMessage;
+	private ValueCallback<Uri[]> uploadMessageAboveL;
+	private final static int FILE_CHOOSER_RESULT_CODE = 10000;
 
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -45,11 +53,77 @@ public class MainActivity extends Activity {
 		// 限制在WebView中打开网页，而不用默认浏览器
 		webView.setWebViewClient(new WebViewClient());
 		// 设置后将可以alert提示框
-		webView.setWebChromeClient(new WebChromeClient());
+		webView.setWebChromeClient(new WebChromeClient() {
+			// For Android < 3.0
+			public void openFileChooser(ValueCallback<Uri> valueCallback) {
+				uploadMessage = valueCallback;
+				openImageChooserActivity();
+			}
+
+			// For Android >= 3.0
+			public void openFileChooser(ValueCallback valueCallback, String acceptType) {
+				uploadMessage = valueCallback;
+				openImageChooserActivity();
+			}
+
+			// For Android >= 4.1
+			public void openFileChooser(ValueCallback<Uri> valueCallback, String acceptType, String capture) {
+				uploadMessage = valueCallback;
+				openImageChooserActivity();
+			}
+
+			// For Android >= 5.0
+			@Override
+			public boolean onShowFileChooser(WebView webView, ValueCallback<Uri[]> filePathCallback, WebChromeClient.FileChooserParams fileChooserParams) {
+				uploadMessageAboveL = filePathCallback;
+				openImageChooserActivity();
+				return true;
+			}
+		});
 		// 设置后将能后访问本地数据库(localStorage)
 		webView.getSettings().setDomStorageEnabled(true);
 		initData();
 	}
+
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		super.onActivityResult(requestCode, resultCode, data);
+		if (requestCode == FILE_CHOOSER_RESULT_CODE) {
+			if (null == uploadMessage && null == uploadMessageAboveL)
+				return;
+			Uri result = data == null || resultCode != RESULT_OK ? null : data.getData();
+			if (uploadMessageAboveL != null) {
+				onActivityResultAboveL(requestCode, resultCode, data);
+			} else if (uploadMessage != null) {
+				uploadMessage.onReceiveValue(result);
+				uploadMessage = null;
+			}
+		}
+	}
+	
+	@TargetApi(Build.VERSION_CODES.LOLLIPOP)
+    private void onActivityResultAboveL(int requestCode, int resultCode, Intent intent) {
+        if (requestCode != FILE_CHOOSER_RESULT_CODE || uploadMessageAboveL == null)
+            return;
+        Uri[] results = null;
+        if (resultCode == Activity.RESULT_OK) {
+            if (intent != null) {
+                String dataString = intent.getDataString();
+                ClipData clipData = intent.getClipData();
+                if (clipData != null) {
+                    results = new Uri[clipData.getItemCount()];
+                    for (int i = 0; i < clipData.getItemCount(); i++) {
+                        ClipData.Item item = clipData.getItemAt(i);
+                        results[i] = item.getUri();
+                    }
+                }
+                if (dataString != null)
+                    results = new Uri[]{Uri.parse(dataString)};
+            }
+        }
+        uploadMessageAboveL.onReceiveValue(results);
+        uploadMessageAboveL = null;
+    }
 
 	/**
 	 * 初始化数据
@@ -60,6 +134,13 @@ public class MainActivity extends Activity {
 		if (!config.equals(null)) {
 			Common.systemUrl = config.getSysValue();
 		}
+	}
+
+	private void openImageChooserActivity() {
+		Intent i = new Intent(Intent.ACTION_GET_CONTENT);
+		i.addCategory(Intent.CATEGORY_OPENABLE);
+		i.setType("image/*");
+		startActivityForResult(Intent.createChooser(i, "Image Chooser"), FILE_CHOOSER_RESULT_CODE);
 	}
 
 	/**
@@ -185,8 +266,7 @@ public class MainActivity extends Activity {
 
 		/**
 		 * 公共后台访问方法，异步请求，将通过回调函数的方法响应
-		 * 方法名是methodName，回调名称为callback。返回的数据将是Response序列化后的字符串
-		 * 暂时还没有验证通过
+		 * 方法名是methodName，回调名称为callback。返回的数据将是Response序列化后的字符串 暂时还没有验证通过
 		 * 
 		 * @param content
 		 */
@@ -446,6 +526,7 @@ public class MainActivity extends Activity {
 						obj.addProperty("CostTypeId", list.get(i).getCostTypeId());
 						obj.addProperty("Notes", list.get(i).getNotes());
 						obj.addProperty("IsMark", list.get(i).getIsMark());
+						obj.addProperty("ImgUrl", list.get(i).getImgUrl());
 						obj.addProperty("FamilyPay", list.get(i).getFamilyPay());
 						obj.addProperty("CreateBy", list.get(i).getCreateBy());
 						obj.addProperty("CreateTime", list.get(i).getCreateTime());
@@ -950,9 +1031,8 @@ public class MainActivity extends Activity {
 		public MyThread(String content) {
 			this.content = content;
 		}
-		
-		public void run()
-	    {
+
+		public void run() {
 			Response res = null;
 			try {
 				Log.i("异步接收数据", content);
@@ -984,17 +1064,17 @@ public class MainActivity extends Activity {
 							res = (Response) result;
 							Log.i("调用回调函数", callback);
 							Log.i("调用回调函数", Common.ToJson(result));
-							webView.loadUrl(String.format("javascript:%s(%s)", callback,Common.ToJson(result)));
+							webView.loadUrl(String.format("javascript:%s(%s)", callback, Common.ToJson(result)));
 						}
 					}
 				}
 			} catch (Exception ex) {
 				Log.e("请求异常", ex.getMessage());
 				res = new Response(false, "出现了无法识别的异常," + ex.getMessage(), null);
-			}finally{				
+			} finally {
 				Log.i("finally打印", Common.ToJson(res));
 			}
 
-	    }
+		}
 	}
 }
