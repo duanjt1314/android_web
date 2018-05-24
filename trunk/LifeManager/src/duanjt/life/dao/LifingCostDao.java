@@ -142,8 +142,8 @@ public class LifingCostDao {
 	 */
 	public boolean Modify(LifingCost life) {
 		try {
-			String sql = "update Lifing_Cost set Time=?,Reason=?,Price=?,Cost_Type_Id=?,IsMark=?,FamilyPay=?,Update_By=?,Update_Time=?,Notes=?,is_upload=? where Id=?";
-			Object[] parm = new Object[] { life.getTime(), life.getReason(), life.getPrice(), life.getCostTypeId(), life.getIsMark(), life.getFamilyPay(), life.getUpdateBy(), life.getUpdateTime(), life.getNotes(), life.getIsUpload(), life.getId() };
+			String sql = "update Lifing_Cost set Time=?,Reason=?,Price=?,Cost_Type_Id=?,IsMark=?,FamilyPay=?,Update_By=?,Update_Time=?,Notes=?,is_upload=?,img_url=? where Id=?";
+			Object[] parm = new Object[] { life.getTime(), life.getReason(), life.getPrice(), life.getCostTypeId(), life.getIsMark(), life.getFamilyPay(), life.getUpdateBy(), life.getUpdateTime(), life.getNotes(), life.getIsUpload(), life.getImgUrl(), life.getId() };
 			db.execSQL(sql, parm);
 			return true;
 		} catch (Exception ex) {
@@ -417,10 +417,10 @@ public class LifingCostDao {
 		if (c.moveToFirst()) {
 			for (int i = 0; i < c.getCount(); i++) {
 				c.moveToPosition(i);// 移动到指定记录
-				DataRow row=new DataRow();
-				row.put("time",c.getString(c.getColumnIndex("time")));
-				row.put("life_price",c.getInt(c.getColumnIndex("life_price")));
-				row.put("income_price",c.getInt(c.getColumnIndex("income_price")));
+				DataRow row = new DataRow();
+				row.put("time", c.getString(c.getColumnIndex("time")));
+				row.put("life_price", c.getInt(c.getColumnIndex("life_price")));
+				row.put("income_price", c.getInt(c.getColumnIndex("income_price")));
 				dataTable.add(row);
 			}
 		}
