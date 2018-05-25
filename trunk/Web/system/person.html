@@ -31,6 +31,11 @@
                 });
                 setTimeout(GetUploadCount, 10);
             });
+            $("#btnExit").tap(function(){
+                localStorage.setItem("loginId", "");
+                localStorage.setItem("loginPwd", "");
+                contact.exit();
+            });
         });
 
         //验证是否有需要上传的数据
@@ -119,6 +124,13 @@
             <div class="ui-form-item ui-border-b">
                 <label>邮箱</label>
                 <input type="text" value="2123211212132@qq.com" readonly="readonly" name="mail">
+            </div>
+            <div class="demo-block">
+                <div class="ui-btn-wrap">
+                    <button class="ui-btn-lg ui-btn-danger" id="btnExit">
+                        退  出
+                    </button>
+                </div>
             </div>
         </form>
 

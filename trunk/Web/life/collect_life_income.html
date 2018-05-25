@@ -16,8 +16,10 @@
     <script src="../script/echartjs/echarts.min.js"></script>
     <script>
         $(function () {
-            var result = request("lifing_GetLifeIncomeYear", {});           
-            bindData(result);
+            setTimeout(function () {
+                var result = request("lifing_GetLifeIncomeYear", {});
+                bindData(result);
+            }, 10);
         });
         function bindData(result) {
             var dom = document.getElementById("canvasDiv");
@@ -101,7 +103,7 @@
 
 <body>
     <header class="ui-header ui-header-positive ui-border-b">
-        <ul clas="ui-row-flex">
+        <ul class="ui-row-flex">
             <li class="ui-col ui-flex ui-flex-pack-start">
                 <i class="ui-icon-return" onclick="history.back()"></i>
             </li>
