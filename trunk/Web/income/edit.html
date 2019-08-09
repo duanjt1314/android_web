@@ -56,6 +56,9 @@
                         } else {
                             alertMsgCenter(result.msg);
                         }
+                    },
+                    back:function(){
+                        history.back();
                     }
                 },
                 created: function () {
@@ -89,7 +92,7 @@
         <header class="ui-header ui-header-positive ui-border-b">
             <ul class="ui-row-flex">
                 <li class="ui-col ui-flex ui-flex-pack-start">
-                    <i class="ui-icon-return" onclick="history.back()"></i>
+                    <i class="ui-icon-return" v-on:click="back()"></i>
                 </li>
                 <li class="ui-col ui-flex ui-flex-pack-center">
                     <h1>新增收入</h1>
