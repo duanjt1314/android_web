@@ -10,80 +10,88 @@
     <link href="../frozenui/css/frozen.css" rel="stylesheet" />
     <script src="../frozenui/js/lib/zeptojs/zepto.min.js"></script>
     <script src="../frozenui/js/frozen.js"></script>
-    <script src="../script/template.js"></script>
+    <script src="../script/vue.min.js"></script>
     <script src="../script/Duanjt.js"></script>
     <script src="../script/common.js"></script>
+    <script src="../script/vue-date.js"></script>
+    <script src="../script/testData.js"></script>
     <script>
-        //全局变量
-        var $list = null;//即将操作的对象
-        var pageIndex = 1;
-        var pageSize = 20;
+        $(function(){
+            //过滤器
+            Vue.filter('fromatMoney', function (value) {
+                return "￥" + Duanjt.Float.ToFloat(value, 2);
+            })
 
-        template.helper("fromatMoney", function (x) {
-            return "￥" + Duanjt.Float.ToFloat(x, 2);
-        });
+            var vue = new Vue({
+                el: ".vue",
+                data: {
+                    list:[],//集合数据
+                    selectedId:null,//当前选中的编号
+                    pageIndex:1,
+                    pageSize:20,
+                    moreText:"加载更多..."
+                },
+                methods: {
+                    back:function(){
+                        history.back();
+                    },
+                    initData:function(){
+                        var result = request("income_getpage", {
+                            pageIndex: this.pageIndex,
+                            pageSize: this.pageSize
+                        });
+                        
+                        if (result.success) {
+                            for (var i = 0; i < result.data.length; i++) {
+                                this.list.push(result.data[i]);
+                            }
+                        } else {
+                            alertMsgCenter(result.msg);
+                        }
+                    },
+                    add:function(){
+                        sessionStorage.setItem("income_id", "");
+                        location.href = "edit.html";
+                    },
+                    itemTap:function(id){
+                        this.selectedId=id;
+                    },
+                    remove:function(){
+                        if(this.selectedId){
+                            var result = request("income_delete", { id: this.selectedId });
+                            if (result.success) {
+                                alertMsg("删除成功");
+                                //移除删除的内容
+                                for(var i=0;i<this.list.length;i++){
+                                    if(this.list[i].Id==this.selectedId){
+                                        this.list.splice(i,1);
+                                        break;
+                                    }
+                                }
+                            } else {
+                                alertMsgCenter("删除失败");
+                            }
+                            this.selectedId=null;
+                        }
+                    },
+                    update:function(){
+                        sessionStorage.setItem("income_id", this.selectedId);
+                        location.href = "edit.html";
+                    },
+                    loadMore:function(){
+                        this.pageIndex += 1;
+                        this.initData();
+                    },
+                    cancle:function(){
+                        this.selectedId=null;
+                    }
 
-        $(function () {
-            initData();
-
-            $(".ui-list>li").live("tap", function () {
-                $('.ui-actionsheet').addClass('show');
-                $list = $(this);
-            });
-
-            $("#btnDelete").on("tap", function () {
-                $('.ui-actionsheet').removeClass('show');
-                var id = $list.data("id");
-                var result = request("income_delete", { id: id });
-                if (result.success) {
-                    alertMsg("删除成功");
-                    $list.remove();
-                } else {
-                    alertMsgCenter("删除失败");
+                },
+                created: function () {
+                    this.initData();
                 }
             });
-            $("#btnCancle").on("tap", function () {
-                $('.ui-actionsheet').removeClass('show');
-            });
-            $("#btnUpdate").on("tap", function () {
-                var id = $list.data("id");
-                console.log("编码:" + id);
-                sessionStorage.setItem("income_id", id);
-                location.href = "edit.html";
-            });
-            $("#btnAdd").on("tap", function () {
-                sessionStorage.setItem("income_id", "");
-                location.href = "edit.html";
-            });
-            $("#dLoadMore").click(function () {
-                $("#dLoadMore").html("加载中...");
-                $("#dLoadMore").css("disabled", "true");
-                pageIndex += 1;//页数+1
-                initData();
-            });
-
         });
-
-        //加载数据
-        function initData() {
-            var result = request("income_getpage", {
-                pageIndex: pageIndex,
-                pageSize: pageSize
-            });
-            var html = "";
-
-            if (result.success) {
-                for (var i = 0; i < result.data.length; i++) {
-                    html += template("list", result.data[i]);
-                }
-                $(".ui-list").append(html);
-
-                $("#dLoadMore").html("加载更多");
-                $("#dLoadMore").css("disabled", "false");
-            } else {
-                alertMsgCenter(result.msg);
-            }
-        }
 
     </script>
     <style>
@@ -95,69 +103,60 @@
 </head>
 
 <body>
-    <header class="ui-header ui-header-positive ui-border-b">
-        <ul class="ui-row-flex">
-            <li class="ui-col ui-flex ui-flex-pack-start">
-                <i class="ui-icon-return" onclick="history.back()"></i>
-            </li>
-            <li class="ui-col ui-flex ui-flex-pack-center" style="-webkit-box-flex:inherit; width:140px;">
-                <h1>收入列表</h1>
-            </li>
-            <li class="ui-col ui-flex ui-flex-pack-end" id="btnAdd">
-                <i class="ui-icon-add"></i>
-            </li>
-        </ul>
-    </header>
+    <div class="vue">
+        <header class="ui-header ui-header-positive ui-border-b">
+            <ul class="ui-row-flex">
+                <li class="ui-col ui-flex ui-flex-pack-start">
+                    <i class="ui-icon-return" v-on:click="back()"></i>
+                </li>
+                <li class="ui-col ui-flex ui-flex-pack-center" style="-webkit-box-flex:inherit; width:140px;">
+                    <h1>收入列表</h1>
+                </li>
+                <li class="ui-col ui-flex ui-flex-pack-end" v-on:tap="add()">
+                    <i class="ui-icon-add"></i>
+                </li>
+            </ul>
+        </header>
 
-    <section class="ui-container">
-        <ul class="ui-list ui-list-pure ui-border-tb"></ul>
-        <div id="dLoadMore" style="text-align:center; height:30px; line-height:30px;">加载更多...</div>
-    </section>
+        <section class="ui-container">
+            <ul class="ui-list ui-list-pure ui-border-tb">
+                <li class="ui-border-t" v-on:tap="itemTap(d.Id)" v-for="d in list">
+                    <div>
+                        <p>
+                            <span>{{d.Time}}</span>
+                            <span style="float:right">{{d.Price|fromatMoney}}</span>
+                        </p>
+                        <p>
+                            <span>备注:{{d.Note}}</span>
+                            <span style="float:right">
+                                <img src="../image/svg/family-red.svg" style="" width="22" v-if="d.FamilyIncome==true" />
+                                <img src="../image/svg/family-white.svg" style="" width="22" v-else/>
+                                
+                                <img src="../image/svg/mart-red.svg" style="" width="22" v-if="d.IsMark==true" />
+                                <img src="../image/svg/mart-white.svg" style="" width="22" v-else/>
+                            </span>
+                        </p>
+                        <p style="text-align:right;clear:both;">
+                            <span v-if="d.IsUpload=='1'">已上传</span>
+                            <span style="color:red" v-else>未上传</span>
+                        </p>
+                    </div>
+                </li>
+            </ul>
 
-    <div class="ui-actionsheet">
-        <div class="ui-actionsheet-cnt">
-            <h4>请选择要操作的方式</h4>
-            <button id="btnDelete">删除</button>
-            <button class="ui-actionsheet-del" id="btnUpdate">修改</button>
-            <button id="btnCancle">取消</button>
+            <div style="text-align:center; height:30px; line-height:30px;" v-if="moreText=='加载更多...'" v-on:tap="loadMore()">{{moreText}}</div>
+            <div style="text-align:center; height:30px; line-height:30px;" v-else>{{moreText}}</div>
+        </section>
+
+        <div :class="[{ show: selectedId!=null }, 'ui-actionsheet']"> 
+            <div class="ui-actionsheet-cnt">
+                <h4>请选择要操作的方式</h4>
+                <button v-on:tap="remove()">删除</button>
+                <button class="ui-actionsheet-del" v-on:tap="update()">修改</button>
+                <button v-on:tap="cancle()">取消</button>
+            </div>
         </div>
     </div>
 </body>
 
 </html>
-
-<!--列表模版-->
-<script type="text/html" id="list">
-    <li class="ui-border-t" data-id="{{Id}}">
-        <div>
-            <p>
-                <span>{{Time}}</span>
-                <span style="float:right">{{fromatMoney Price}}</span>
-            </p>
-            <p>
-                <span>备注:{{Note}}</span>
-                <span style="float:right">
-                    {{if FamilyIncome=="true"}}
-                    <img src="../image/svg/family-red.svg" style="" width="22" />
-                    {{else}}
-                    <img src="../image/svg/family-white.svg" style="" width="22" />
-                    {{/if}}
-
-                    {{if IsMark=="true"}}
-                    <img src="../image/svg/mart-red.svg" style="" width="22" />
-                    {{else}}
-                    <img src="../image/svg/mart-white.svg" style="" width="22" />
-                    {{/if}}
-                </span>
-            </p>
-            <p style="text-align:right;clear:both;">
-                {{if IsUpload=="1"}}
-                <span>已上传</span>
-                {{/if}}
-                {{if IsUpload!="1"}}
-                <span style="color:red">未上传</span>
-                {{/if}}
-            </p>
-        </div>
-    </li>
-</script>
