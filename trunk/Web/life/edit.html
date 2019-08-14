@@ -8,201 +8,199 @@
     <meta name="format-detection" content="telephone=no">
     <title>新增消费</title>
     <link href="../frozenui/css/frozen.css" rel="stylesheet" />
-
     <script src="../frozenui/js/lib/zeptojs/zepto.min.js"></script>
     <script src="../frozenui/js/frozen.js"></script>
-    <script src="../script/template.js"></script>
+    <script src="../script/vue.min.js"></script>
     <script src="../script/common.js"></script>
     <script src="../script/Duanjt.js"></script>
-    <script src="../script/CusDate.js"></script>
-    <script src="../script/DictionComb.js"></script>
+    <script src="../script/vue-date.js"></script>    
     <script>
         $(function () {
-            var cus = $(".ui-select-group").CusDate();
+            var vue = new Vue({
+                el: ".vue",
+                data: {
+                    Id: "",
+                    Time: "",
+                    Reason: "",
+                    Price: "",
+                    CostTypeId: "",
+                    Notes: "",
+                    IsMark: false,
+                    FamilyPay: false,
+                    ImgUrl: "",
+                    AllTypes: []
+                },
+                methods: {
+                    save: function () {
+                        //验证输入是否合法
+                        if (!this.Reason) {
+                            alertMsg("请输入消费名称");
+                            return;
+                        }
+                        if (!this.Price) {
+                            alertMsg("请输入消费金额");
+                            return;
+                        }
 
-            var type = $("#CostTypeId").DictionComb({
-                hiddenName: "CostTypeId",
-                data: request("diction_list", { parentId: 1000300000 }).data
-            });
+                        var val = {
+                            Id: this.Id,
+                            Time: this.Time,
+                            Reason: this.Reason,
+                            Price: this.Price,
+                            CostTypeId: this.CostTypeId,
+                            Notes: this.Notes,
+                            IsMark: this.IsMark,
+                            FamilyPay: this.FamilyPay,
+                            ImgUrl: this.ImgUrl
+                        };
+                        
+                        var result = request("lifing_save", { objString: JSON.stringify(val) });
+                        if (result.success == true) {
+                            //清空数据
+                            this.Id = "";
+                            this.Reason = "";
+                            this.Price = "";
+                            this.ImgUrl="";
 
-            $("#btnSave").tap(function () {
-                //验证输入是否合法
-                if (!$("input[name=Reason]").val()) {
-                    alertMsg("请输入消费名称");
-                    return;
-                }
-                if (!$("input[name=Price]").val()) {
-                    alertMsg("请输入消费金额");
-                    return;
-                }
-
-                var val = {
-                    Id: $("input[name=Id]").val(),
-                    Time: cus.getTime(),
-                    Reason: $("input[name=Reason]").val(),
-                    Price: $("input[name=Price]").val(),
-                    CostTypeId: $("select[name=CostTypeId]").val(),
-                    Notes: $("textarea[name=Notes]").val(),
-                    IsMark: $("input[name=IsMark]").attr("checked") ? "true" : "false",
-                    FamilyPay: $("input[name=FamilyPay]").attr("checked") ? "true" : "false",
-                    ImgUrl: $("input[name=ImgUrl]").val()
-                };
-                var result = request("lifing_save", { objString: JSON.stringify(val) });
-                if (result.success == true) {
-                    //清空数据
-                    $("input[name=Id]").val("");
-                    $("input[name=Reason]").val("");
-                    $("input[name=Price]").val("");
-
-                    document.getElementById("txtImgUrl").value = "";
-                    document.getElementById("imgPic").src = "";
-                    document.getElementById("imgUpload").value = "";
-
-                    alertMsg("保存成功");
-                } else {
-                    alertMsgCenter(result.msg);
-                }
-            });
-
-            //判断是新增还是修改
-            var id = sessionStorage.getItem("life_id");//Duanjt.Url.GetPara(location.href)["id"];
-            if (id) {
-                var result = request("lifing_getbyid", { id: id });
-                if (result.success) {
-                    var index = result.data;
-                    cus.setTime(index.Time);
-                    $("input[name=Id]").val(index.Id);
-                    $("input[name=Reason]").val(index.Reason);
-                    $("input[name=Price]").val(index.Price);
-                    $("select[name=CostTypeId]").val(index.CostTypeId);
-                    $("textarea[name=Notes]").val(index.Notes);
-                    $("input[name=ImgUrl]").val(index.ImgUrl);
-                    document.getElementById("imgPic").src = index.ImgUrl;
-
-                    if (index.IsMark == "true") {
-                        $("input[name=IsMark]").prop("checked", true);
+                            alertMsg("保存成功");
+                        } else {
+                            alertMsgCenter(result.msg);
+                        }
+                    },
+                    selectPic:function() {
+                        document.getElementById("imgUpload").click();
+                    },
+                    readFile:function(fileInput) {
+                        var file = document.getElementById("imgUpload").files[0];
+                        if (!/image\/\w+/.test(file.type)) {
+                            alertMsgCenter("请确保文件为图像类型");
+                            return false;
+                        }
+            
+                        if (file.size > 500 * 1024) {//不能大于500K
+                            alertMsgCenter("文件最大只支持500KB");
+                            return false;
+                        }
+            
+                        var reader = new FileReader();
+                        reader.readAsDataURL(file);
+                        reader.onload = function () {
+                            vue.ImgUrl = this.result;
+                        }
+                    },
+                    clearPic: function() {
+                        this.ImgUrl = "";
+                        document.getElementById("imgUpload").value = "";
+                    },
+                    back: function () {
+                        history.back();
                     }
-                    if (index.FamilyPay == "true") {
-                        $("input[name=FamilyPay]").prop("checked", true);
+                },
+                created: function () {
+                    //绑定所有类型
+                    this.AllTypes = request("diction_list", { parentId: 1000300000 }).data;
+
+                    var id = sessionStorage.getItem("life_id");//Duanjt.Url.GetPara(location.href)["id"];
+                    if (id) {
+                        var result = request("lifing_getbyid", { id: id });
+                        if (result.success) {
+                            var index = result.data;
+                            this.Id = index.Id;
+                            this.Reason = index.Reason;
+                            this.Price = index.Price;
+                            this.CostTypeId = index.CostTypeId;
+                            this.Notes = index.Notes;
+                            this.ImgUrl = index.ImgUrl;
+                            this.IsMark = index.IsMark;
+                            this.FamilyPay = index.FamilyPay;
+                        } else {
+                            alertMsgCenter(result.msg);
+                        }
+                    } else {
+                        var t = new Date().format("yyyy-MM-dd");
+                        this.Time = t;
+                        if (this.AllTypes.length > 0) {
+                            this.CostTypeId = this.AllTypes[0].id;
+                        }
                     }
-                } else {
-                    alertMsgCenter(result.msg);
+
                 }
-            } else {
-                cus.setTime(new Date());
-            }
-
-
+            });
         });
 
-        window.onload = function () {
-            document.getElementById("imgUpload").addEventListener('change', readFile, false);
-        }
-
-        function selectPic() {
-            document.getElementById("imgUpload").click();
-        }
-
-        function clearPic() {
-            document.getElementById("txtImgUrl").value = "";
-            document.getElementById("imgPic").src = "";
-            document.getElementById("imgUpload").value = "";
-        }
-
-        function readFile() {
-            var file = this.files[0];
-            if (!/image\/\w+/.test(file.type)) {
-                alertMsgCenter("请确保文件为图像类型");
-                return false;
-            }
-
-            if (file.size > 500 * 1024) {//不能大于500K
-                alertMsgCenter("文件最大只支持500KB");
-                return false;
-            }
-
-            var reader = new FileReader();
-            reader.readAsDataURL(file);
-            reader.onload = function () {
-                document.getElementById("txtImgUrl").value = this.result;
-                document.getElementById("imgPic").src = this.result;
-            }
-        }
     </script>
 </head>
 
 <body>
-    <header class="ui-header ui-header-positive ui-border-b">
-        <ul class="ui-row-flex">
-            <li class="ui-col ui-flex ui-flex-pack-start">
-                <i class="ui-icon-return" onclick="history.back()"></i>
-            </li>
-            <li class="ui-col ui-flex ui-flex-pack-center">
-                <h1>新增消费</h1>
-            </li>
-            <li class="ui-col ui-flex ui-flex-pack-end">
-                <i class="" id="btnSave">保存</i>
-            </li>
-        </ul>
-    </header>
+    <div class="vue">
+        <header class="ui-header ui-header-positive ui-border-b">
+            <ul class="ui-row-flex">
+                <li class="ui-col ui-flex ui-flex-pack-start">
+                    <i class="ui-icon-return" v-on:click="back()"></i>
+                </li>
+                <li class="ui-col ui-flex ui-flex-pack-center">
+                    <h1>新增消费</h1>
+                </li>
+                <li class="ui-col ui-flex ui-flex-pack-end">
+                    <i class="" v-on:click="save()">保存</i>
+                </li>
+            </ul>
+        </header>
 
-    <section class="ui-container">
-        <div class="ui-form ui-border-t">
-            <form action="#" onsubmit="return false" autocomplete="off">
-                <div class="ui-form-item ui-border-b">
-                    <label>消费日期</label>
-                    <div class="ui-select-group" data-value="">
+        <section class="ui-container">
+            <div class="ui-form ui-border-t">
+                <form action="#" onsubmit="return false" autocomplete="off">
+                    <div class="ui-form-item ui-border-b">
+                        <label>消费日期</label>
+                        <my-vue-date v-model="Time"></my-vue-date>
                     </div>
-                </div>
-                <div class="ui-form-item ui-border-b">
-                    <label>消费名称</label>
-                    <input type="text" value="" name="Reason">
-                </div>
-                <div class="ui-form-item ui-border-b">
-                    <label>消费金额</label>
-                    <input type="number" value="{{Data.Money}}" name="Price">
-                </div>
-                <div class="ui-form-item ui-border-b">
-                    <label>消费类型</label>
-                    <div class="ui-select" id="CostTypeId" data-value="1">
-                        <select>
-                            <option>2014</option>
-                            <option selected>2015</option>
-                            <option>2016</option>
-                        </select>
+                    <div class="ui-form-item ui-border-b">
+                        <label>消费名称</label>
+                        <input type="text" v-model="Reason">
                     </div>
-                </div>
-                <div class="ui-form-item ui-border-b" style="height:80px;">
-                    <label>消费备注</label>
-                    <textarea style="height:60px; margin-top:10px;" name="Notes"></textarea>
-                </div>
-                <div class="ui-form-item ui-border-b" style="display:-webkit-box; -webkit-box-orient:horizontal">
-                    <div style="-webkit-box-flex:1">
-                        <label class="ui-checkbox">
-                            <input type="checkbox" name="IsMark" value="1">特殊标识
-                        </label>
+                    <div class="ui-form-item ui-border-b">
+                        <label>消费金额</label>
+                        <input type="number" v-model="Price">
                     </div>
-                    <div style="-webkit-box-flex:1">
-                        <label class="ui-checkbox">
-                            <input type="checkbox" name="FamilyPay" value="1">家庭内支出
-                        </label>
+                    <div class="ui-form-item ui-border-b">
+                        <label>消费类型</label>
+                        <div class="ui-select">
+                            <select v-model="CostTypeId">
+                                <option v-for="c in AllTypes" :value="c.id">{{c.name}}</option>
+                            </select>
+                        </div>
                     </div>
-                </div>
-                <div>
-                    <div style="padding:2px 0 2px 0;">
-                        <button class="ui-btn" id="btnSelectPic" onclick="selectPic()">选择图片</button>
-                        <button class="ui-btn" id="btnClearPic" onclick="clearPic()">清除图片</button>
+                    <div class="ui-form-item ui-border-b" style="height:80px;">
+                        <label>消费备注</label>
+                        <textarea style="height:60px; margin-top:10px;" v-model="Notes"></textarea>
                     </div>
-                    <img src="" id="imgPic" style="width:100%" />
-                    <input type="file" id="imgUpload" style="visibility: hidden;" />
-                    <input type="hidden" id="txtImgUrl" name="ImgUrl" />
-                </div>
-                <input type="hidden" name="Id" value="" />
-            </form>
-        </div>
+                    <div class="ui-form-item ui-border-b" style="display:-webkit-box; -webkit-box-orient:horizontal">
+                        <div style="-webkit-box-flex:1">
+                            <label class="ui-checkbox">
+                                <input type="checkbox" v-model="IsMark" :value="1">特殊标识
+                            </label>
+                        </div>
+                        <div style="-webkit-box-flex:1">
+                            <label class="ui-checkbox">
+                                <input type="checkbox" v-model="FamilyPay" :value="1">家庭内支出
+                            </label>
+                        </div>
+                    </div>
+                    <div>
+                        <div style="padding:2px 0 2px 0;">
+                            <button class="ui-btn" v-on:tap="selectPic()">选择图片</button>
+                            <button class="ui-btn" v-on:tap="clearPic()">清除图片</button>
+                        </div>
+                        <img :src="ImgUrl" style="width:100%" />
+                        <input type="file" id="imgUpload" style="visibility: hidden;" @change="readFile()" />
+                        <input type="hidden" v-model="ImgUrl" />
+                    </div>
+                    <input type="hidden" v-model="Id" />
+                </form>
+            </div>
 
-    </section>
-
+        </section>
+    </div>
 </body>
 
 </html>

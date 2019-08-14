@@ -8,84 +8,34 @@
     <title>index</title>
     <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no">
     <meta name="format-detection" content="telephone=no">
-    <link href="../frozenui/css/frozen.css" rel="stylesheet" />
-    <script src="../frozenui/js/lib/zeptojs/zepto.min.js"></script>
-    <script src="../frozenui/js/frozen.js"></script>
-    <script src="../script/template.js"></script>
-    <script src="../script/Duanjt.js"></script>
-    <script src="../script/CusDate.js"></script>
-    <script src="../script/common.js"></script>
-    <script src="../script/contact.js?v=9"></script>
-    <script src="../script/vue.min.js"></script><!--vue框架-->
     <script>
-        $(function () {
-            $("input[name=isMark]").prop("checked", true);
-
-            $("#btnOK").click(function () {
-                alert($("input[name=isMark]").attr("checked"));
-                //alert($("input[name=familyPay]").attr("checked"));
-            });
-
-
-            var vue = new Vue({
-                el: ".vue",
-                data: {
-                    form: {//表单数据
-                        addr:""
-                    },
-                    addr: ""
-                },
-                methods: {
-                    update: function () {
-                        //var f = vue.form;
-                        //f.addr = "列名";
-                        //vue.form = f;
-                        vue.form.addr = "I love you";
-                        console.log(vue.form);
-                    }
+        var contact = {
+            request: function(par){
+                if(par.methodName=='diction_list'){
+                    return {
+                        success:true,
+                        msg:"",
+                        data:[{
+                            id:1,
+                            name:"生活费"
+                        },{
+                            id:2,
+                            name:"医药费"
+                        },{
+                            id:3,
+                            name:"车费"
+                        }]
+                    };
                 }
-            });
+            }
+        }
 
-            var cus = $(".ui-select-group").CusDate();
-            cus.setTime(new Date());
+        var contact={};
+        console.log(contact);
 
-        });
     </script>
 </head>
 <body>
-    <div class="ui-form ui-border-t">
-        <input type="checkbox" name="aaa" />测试
-        <form action="#">
-            <div class="ui-form-item ui-border-b" style="display:-webkit-box; -webkit-box-orient:horizontal">
-                <div style="-webkit-box-flex:1">
-                    <label class="ui-checkbox">
-                        <input type="checkbox" name="isMark" value="1">特殊标识
-                    </label>
-                </div>
-                <div style="-webkit-box-flex:1">
-                    <label class="ui-checkbox">
-                        <input type="checkbox" name="familyPay" value="1">家庭内支出
-                    </label>
-                </div>
-            </div>
-            <input type="hidden" name="id" value="{{id}}" />
-        </form>
-    </div>
-    <input type="button" name="name" value="获取" id="btnOK" />
-
-    <div class="vue">
-        <input type="text" name="name" value="" v-model="form.addr" /> <br />
-        <label>{{form.addr}}</label> <br />
-        <input type="button" name="name" value="改变" v-on:click="update" />
-    </div>
-    <div id="date">
-        <form action="#">
-            <div class="ui-form-item ui-border-b">
-                <label>操作日期</label>
-                <div class="ui-select-group" data-value="">
-                </div>
-            </div>
-        </form>
-    </div>
+    
 </body>
 </html>
